@@ -1,0 +1,81 @@
+public static void calcMandelbrot(Color[][] c, BigDecimalPoint bdp1, BigDecimalPoint bdp2, int maxIterations)
+	{
+		int jx = 0;
+		int jy = 0;
+		
+		for (
+				BigDecimal ix = bdp1.x; //start ix at point 1's x
+				ix.compareTo(bdp2.x) == -1;  //is "ix" less than point 2?
+				ix = ix.add( bdp2.x.subtract(bdp1.x).divide(intToBD(c.length))) // (point 2 - point 1) / window size
+				)
+		{
+			for (
+					BigDecimal iy = bdp1.y; //start iy at point 1's y
+					iy.compareTo(bdp2.y) == -1; // is "iy" less than point 2?
+					iy = iy.add( bdp2.y.subtract(bdp1.y).divide(intToBD(c.length)))  // (point 2 - point 1) / window size
+					)
+			{
+				int iterations = 0;
+				
+				BigDecimal cx = new BigDecimal(ix.toString());
+				BigDecimal cy = new BigDecimal(iy.toString());
+				
+				BigDecimal zx = BigDecimal.ZERO;
+				BigDecimal zy = BigDecimal.ZERO;
+				
+				while (zx.multiply(zx).add(zy.multiply(zy)).compareTo(BAILOUT_NUMBER) == -1 && iterations < maxIterations) // x*x + y*y < 4
+				{
+					BigDecimal tempX = zx.multiply(zx).subtract(zy.multiply(zy)).add(cx); //x*x - y*y + cx
+					zy = TWO.multiply(zx).multiply(zy).add(cy); // 2*x*y + cy
+					zx = tempX; 
+					
+					iterations++;
+				}
+				
+				//System.out.println(ix+","+iy+". "+iterations+". ["+jx+","+jy+"]");
+				
+				c[jx][jy] = new Color(iterations*10, 0, 0);
+						
+				jy++;
+			}
+			
+			jx++;
+			jy = 0;
+		}
+	}
+	
+	public static void calcMandelbrotColumn(int[][] id, BigDecimalPoint bdp1, BigDecimalPoint bdp2, int maxIterations, Integer column)
+	{	
+		int jy = 0;
+		
+		BigDecimal xval = bdp2.x.subtract(bdp1.x).divide(intToBD(id.length)).multiply(intToBD(column));
+		xval = xval.add(bdp1.x);
+
+		for (
+				BigDecimal iy = bdp1.y; //start iy at point 1's y
+				iy.compareTo(bdp2.y) == -1; // is "iy" less than point 2?
+				iy = iy.add( bdp2.y.subtract(bdp1.y).divide(intToBD(id.length)))  // (point 2 - point 1) / window size
+				)
+		{
+			int iterations = 0;
+			
+			BigDecimal cx = xval;
+			BigDecimal cy = new BigDecimal(iy.toString());
+			
+			BigDecimal zx = BigDecimal.ZERO;
+			BigDecimal zy = BigDecimal.ZERO;
+			
+			while (zx.multiply(zx).add(zy.multiply(zy)).compareTo(BAILOUT_NUMBER) == -1 && iterations < maxIterations) // x*x + y*y < 4
+			{
+				BigDecimal tempX = zx.multiply(zx).subtract(zy.multiply(zy)).add(cx); //x*x - y*y + cx
+				zy = TWO.multiply(zx).multiply(zy).add(cy); // 2*x*y + cy
+				zx = tempX; 
+				
+				iterations++;
+			}
+			//System.out.println(column+","+iy+". "+iterations+". ["+column+","+jy+"]");
+			
+			id[column][jy] = iterations;
+			jy++;
+		}
+	}
