@@ -43,6 +43,8 @@ public class FractalCalculator {
 	public static boolean colorOutsidePixels = true;
 	
 	
+	
+	
 	private static boolean calcBailout(Complex Z)
 	{
 		switch (selectedBailout)
@@ -63,7 +65,7 @@ public class FractalCalculator {
 		 
 	}
 	
-	public static void calcMandelbrotColumnLP(Color[][] id, Integer column)
+	public static void calcFractalColumn(Color[][] id, Integer column, boolean julia, double jpx, double jpy)
 	{	
 		RenderProgressJPanel.setJob(column, (byte) 2);
 		Complex c, z;
@@ -85,6 +87,8 @@ public class FractalCalculator {
 
 		for (double iy = p1y; jy < id.length; iy = iy + ((p2y - p1y) / id.length), jy++)
 		{
+			//renderDetail is by default 0, indicating that no subdividing & averaging of pixels dont happen
+			// However, if renderDetail is non zero, subdivision happens.
 			if (renderDetail != 0)
 			{
 				ArrayList<Color> colors = new ArrayList<Color>();
@@ -103,9 +107,18 @@ public class FractalCalculator {
 						distanceSum = 0.0;
 						iterations = 0;
 						
-						c = new Complex(hdx, hdy);
-						
-						z = C_ZERO;
+						if (julia)
+						{
+							c = new Complex(jpx, jpy);
+							
+							z = new Complex(hdx, hdy);
+						}
+						else
+						{
+							c = new Complex(hdx, hdy);
+							
+							z = C_ZERO;
+						}
 						
 						if (colorInsidePixels)
 							currentPoint = new Complex(c);
@@ -153,9 +166,18 @@ public class FractalCalculator {
 				distanceSum = 0.0;
 				iterations = 0;
 				
-				c = new Complex(xval, iy);
-				
-				z = C_ZERO;
+				if (julia)
+				{
+					c = new Complex(jpx, jpy);
+					
+					z = new Complex(xval, iy);
+				}
+				else
+				{
+					c = new Complex(xval, iy);
+					
+					z = C_ZERO;
+				}
 				
 				if (colorInsidePixels)
 					currentPoint = new Complex(c);
@@ -194,137 +216,7 @@ public class FractalCalculator {
 		}
 		RenderProgressJPanel.setJob(column, (byte) 3);
 	}
-	public static void calcJuliaColumnLP(Color[][] id, Integer column, double jpx, double jpy)
-	{	
-		RenderProgressJPanel.setJob(column, (byte) 2);
-		Complex c, z;
-		int jy = 0;
-		
-		double p1x = juliaCameraP1[0];
-		double p1y = juliaCameraP1[1];
-		double p2x = juliaCameraP2[0];
-		double p2y = juliaCameraP2[1];
-		
-		
-		
-		double xval = (p2x - p1x) / id.length * column;
-		xval = xval + p1x;
-		
-		int iterations;
-
-		double distanceSum = 0.0;
-		Complex previousPoint = null, currentPoint = null;
-
-		for (double iy = p1y; jy < id.length; iy = iy + ((p2y - p1y) / id.length), jy++)
-		{
-			if (renderDetail != 0)
-			{
-				ArrayList<Color> colors = new ArrayList<Color>();
-				
-				//This for loop in summary:
-				//Take the size of the current column. 
-				//Divide it into smaller pieces based on renderDetail				
-				for (double hdx = xval; 
-						hdx < xval + (p2x - p1x) / (double) id.length; 
-						hdx += (p2x - p1x) / (double) id.length / Math.pow(2, renderDetail))
-				{
-					for (double hdy = iy; 
-							hdy < iy + ((p2y - p1y) / (double) id.length); 
-							hdy += (p2y - p1y) / (double) id.length / Math.pow(2, renderDetail))
-					{
-						distanceSum = 0.0;
-						iterations = 0;
-						
-						c = new Complex(jpx, jpy);
-						
-						z = new Complex(hdx, hdy);
-						
-						if (colorInsidePixels)
-							currentPoint = new Complex(c);
-			
-						while (!calcBailout(z) && iterations < maxIterations) // x*x + y*y < 4
-						{
-							if (colorInsidePixels)
-								previousPoint = new Complex(currentPoint);
-							
-							z = ZIterative(z, c);
-							
-							if (colorInsidePixels)
-							{
-								currentPoint = new Complex(z);
-								
-								distanceSum += complexDistance(currentPoint, previousPoint);
-							}
-							
-							iterations++;
-							RenderProgressJPanel.incIC();
-							//totalIterationsCalculated++;
-						}
-						//System.out.println(column+","+iy+". "+iterations+". ["+column+","+jy+"]");	
-						
-						if (iterations == maxIterations)
-							if (colorInsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode));
-							else
-								colors.add(Color.BLACK);
-						else
-							if (colorOutsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode));
-							else
-								colors.add(Color.BLACK);
-						
-					}
-				}
-
-				id[column][jy] = averageColorArray(colors);
-				RenderProgressJPanel.incPC();
-			}
-			else
-			{
-				distanceSum = 0.0;
-				iterations = 0;
-				
-				c = new Complex(jpx, jpy);
-				
-				z = new Complex(xval, iy);
-				
-				if (colorInsidePixels)
-					currentPoint = new Complex(c);
-				
-				while (!calcBailout(z) && iterations < maxIterations) 
-				{
-					if (colorInsidePixels)
-						previousPoint = new Complex(currentPoint);
-					
-					z = ZIterative(z, c);
-					if (colorInsidePixels)
-					{
-						currentPoint = new Complex(z);
-						
-						distanceSum += complexDistance(currentPoint, previousPoint);
-					}
-					
-					iterations++;
-					RenderProgressJPanel.incIC();
-					//totalIterationsCalculated++;
-				}
-				if (iterations == maxIterations)
-					if (colorInsidePixels)
-						id[column][jy] = palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode);
-					else
-						id[column][jy] = Color.BLACK;
-				else
-					if (colorOutsidePixels)
-						id[column][jy] = palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode);
-					else
-						id[column][jy] = Color.BLACK;
-				RenderProgressJPanel.incPC();
-
-			}
-		}
-		RenderProgressJPanel.setJob(column, (byte) 3);
-	}
-	public static void calcMandelbrotColumnLP(BufferedImage id, Integer column)
+	public static void calcFractalColumn(BufferedImage id, Integer column, boolean julia, double jpx, double jpy)
 	{	
 		RenderProgressJPanel.setJob(column, (byte) 2);
 		Complex c, z;
@@ -365,9 +257,18 @@ public class FractalCalculator {
 						distanceSum = 0.0;
 						iterations = 0;
 						
-						c = new Complex(hdx, hdy);
-						
-						z = C_ZERO;
+						if (julia)
+						{
+							c = new Complex(jpx, jpy);
+							
+							z = new Complex(hdx, hdy);
+						}
+						else
+						{
+							c = new Complex(hdx, hdy);
+							
+							z = C_ZERO;
+						}
 						
 						if (colorInsidePixels)
 							currentPoint = new Complex(c);
@@ -417,9 +318,18 @@ public class FractalCalculator {
 				distanceSum = 0.0;
 				iterations = 0;
 				
-				c = new Complex(xval, iy);
-				
-				z = C_ZERO;
+				if (julia)
+				{
+					c = new Complex(jpx, jpy);
+					
+					z = new Complex(xval, iy);
+				}
+				else
+				{
+					c = new Complex(xval, iy);
+					
+					z = C_ZERO;
+				}
 				
 				if (colorInsidePixels)
 					currentPoint = new Complex(c);
@@ -452,141 +362,6 @@ public class FractalCalculator {
 						col = palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode);
 					else
 						col = Color.BLACK;
-				id.setRGB(column, jy, col.getRGB());
-				RenderProgressJPanel.incPC();
-
-			}
-		}
-		RenderProgressJPanel.setJob(column, (byte) 3);
-	}
-	public static void calcJuliaColumnLP(BufferedImage id, Integer column, double jpx, double jpy)
-	{	
-		RenderProgressJPanel.setJob(column, (byte) 2);
-		Complex c, z;
-		int jy = 0;
-		
-		double p1x = juliaCameraP1[0];
-		double p1y = juliaCameraP1[1];
-		double p2x = juliaCameraP2[0];
-		double p2y = juliaCameraP2[1];
-		
-		
-		double xval = (p2x - p1x) / id.getWidth() * column;
-		xval = xval + p1x;
-		
-		int iterations;
-
-		double distanceSum = 0.0;
-		Complex previousPoint = null, currentPoint = null;
-		
-
-		for (double iy = p1y; jy < id.getWidth(); iy = iy + ((p2y - p1y) / id.getWidth()), jy++)
-		{
-			if (renderDetail != 0)
-			{
-				Color col;
-				ArrayList<Color> colors = new ArrayList<Color>();
-				
-				//This for loop in summary:
-				//Take the size of the current column. 
-				//Divide it into smaller pieces based on renderDetail				
-				for (double hdx = xval; 
-						hdx < xval + (p2x - p1x) / (double) id.getWidth(); 
-						hdx += (p2x - p1x) / (double) id.getWidth() / Math.pow(2, renderDetail))
-				{
-					for (double hdy = iy; 
-							hdy < iy + ((p2y - p1y) / (double) id.getWidth()); 
-							hdy += (p2y - p1y) / (double) id.getWidth() / Math.pow(2, renderDetail))
-					{
-						distanceSum = 0.0;
-						iterations = 0;
-						
-						c = new Complex(jpx, jpy);
-						
-						z = new Complex(hdx, hdy);
-						
-						if (colorInsidePixels)
-							currentPoint = new Complex(c);
-			
-						while (!calcBailout(z) && iterations < maxIterations) // x*x + y*y < 4
-						{
-							if (colorInsidePixels)
-								previousPoint = new Complex(currentPoint);
-							
-							z = ZIterative(z, c);
-							
-							if (colorInsidePixels)
-							{
-								currentPoint = new Complex(z);
-								
-								distanceSum += complexDistance(currentPoint, previousPoint);
-							}
-							
-							iterations++;
-							RenderProgressJPanel.incIC();
-							//totalIterationsCalculated++;
-						}
-						//System.out.println(column+","+iy+". "+iterations+". ["+column+","+jy+"]");	
-						
-						if (iterations == maxIterations)
-							if (colorInsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode));
-							else
-								colors.add(Color.BLACK);
-						else
-							if (colorOutsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode));
-							else
-								colors.add(Color.BLACK);
-						
-					}
-				}
-				col = averageColorArray(colors);
-				id.setRGB(column, jy, col.getRGB());
-				RenderProgressJPanel.incPC();
-			}
-			else
-			{
-				Color col;
-				distanceSum = 0.0;
-				iterations = 0;
-				
-				c = new Complex(jpx, jpy);
-				
-				z = new Complex(xval, iy);
-				
-				currentPoint = new Complex(c);
-				
-				
-				while (!calcBailout(z) && iterations < maxIterations) 
-				{
-					if (colorInsidePixels)
-						previousPoint = new Complex(currentPoint);
-					
-					z = ZIterative(z, c);
-					
-					if (colorInsidePixels)
-					{
-						currentPoint = new Complex(z);
-						
-						distanceSum += complexDistance(currentPoint, previousPoint);
-					}
-					
-					iterations++;
-					RenderProgressJPanel.incIC();
-					//totalIterationsCalculated++;
-				}
-				if (iterations == maxIterations)
-					if (colorInsidePixels)
-						col = palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode);
-					else
-						col = Color.BLACK;
-				else
-					if (colorOutsidePixels)
-						col = palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode);
-					else
-						col = Color.BLACK;
-				
 				id.setRGB(column, jy, col.getRGB());
 				RenderProgressJPanel.incPC();
 
@@ -792,4 +567,5 @@ public class FractalCalculator {
 	{
 		return paletteShiftMode;
 	}
+	
 }

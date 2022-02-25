@@ -44,7 +44,14 @@ public class Driver {
 	}
 	private static JMenu create_viewMenu() {
 		JMenu viewMenu = new JMenu("View");
-
+		
+		JCheckBoxMenuItem previewPaletteShifts = new JCheckBoxMenuItem("Preview palette shifts");
+		previewPaletteShifts.setSelected(false);
+		previewPaletteShifts.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
+			MyPanel.setPreviewPaletteShifts(!MyPanel.getPreviewPaletteShifts());
+		}});
+		viewMenu.add(previewPaletteShifts);
+		
 		
 		return viewMenu;
 		
@@ -199,6 +206,7 @@ public class Driver {
 		JRadioButtonMenuItem psmo_BGR = new JRadioButtonMenuItem("BGR");
 		
 		psmo_RGB.addActionListener(new PSMOActionListener(0));
+		psmo_RGB.setSelected(true);
 		psmo_BRG.addActionListener(new PSMOActionListener(1));
 		psmo_GBR.addActionListener(new PSMOActionListener(2));
 		psmo_RBG.addActionListener(new PSMOActionListener(3));
