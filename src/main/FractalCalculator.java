@@ -65,8 +65,11 @@ public class FractalCalculator {
 		 
 	}
 	
-	public static void calcFractalColumn(Color[][] id, Integer column, boolean julia, double jpx, double jpy)
+	public static void calcFractalColumn(Color[][] id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode)
 	{	
+		if (param_paletteShiftMode == -1)
+			param_paletteShiftMode = paletteShiftMode;
+		
 		RenderProgressJPanel.setJob(column, (byte) 2);
 		Complex c, z;
 		int jy = 0;
@@ -145,12 +148,12 @@ public class FractalCalculator {
 						
 						if (iterations == maxIterations)
 							if (colorInsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode));
+								colors.add(palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
 							else
 								colors.add(Color.BLACK);
 						else
 							if (colorOutsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode));
+								colors.add(palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
 							else
 								colors.add(Color.BLACK);
 						
@@ -202,12 +205,12 @@ public class FractalCalculator {
 				}
 				if (iterations == maxIterations)
 					if (colorInsidePixels)
-						id[column][jy] = palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode);
+						id[column][jy] = palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
 					else
 						id[column][jy] = Color.BLACK;
 				else
 					if (colorOutsidePixels)
-						id[column][jy] = palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode);
+						id[column][jy] = palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
 					else
 						id[column][jy] = Color.BLACK;
 				RenderProgressJPanel.incPC();
@@ -216,8 +219,11 @@ public class FractalCalculator {
 		}
 		RenderProgressJPanel.setJob(column, (byte) 3);
 	}
-	public static void calcFractalColumn(BufferedImage id, Integer column, boolean julia, double jpx, double jpy)
+	public static void calcFractalColumn(BufferedImage id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode)
 	{	
+		if (param_paletteShiftMode == -1)
+			param_paletteShiftMode = paletteShiftMode;
+		
 		RenderProgressJPanel.setJob(column, (byte) 2);
 		Complex c, z;
 		int jy = 0;
@@ -294,12 +300,12 @@ public class FractalCalculator {
 						
 						if (iterations == maxIterations)
 							if (colorInsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode));
+								colors.add(palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
 							else
 								colors.add(Color.BLACK);
 						else
 							if (colorOutsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode));
+								colors.add(palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
 							else
 								colors.add(Color.BLACK);
 						
@@ -354,12 +360,12 @@ public class FractalCalculator {
 				}
 				if (iterations == maxIterations)
 					if (colorInsidePixels)
-						col = palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode);
+						col = palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
 					else
 						col = Color.BLACK;
 				else
 					if (colorOutsidePixels)
-						col = palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, paletteShiftMode);
+						col = palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
 					else
 						col = Color.BLACK;
 				id.setRGB(column, jy, col.getRGB());

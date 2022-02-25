@@ -281,4 +281,28 @@ public class Palette
       ret[i] = al.get(i);
     return ret;
   }
+  
+  /**
+   * Gets string represnetation of shift mode
+   * @param mode Shift mode
+   * @return String representation of the shift mode
+   */
+  public static String getPaletteShiftModeString(int mode)
+  {
+	  switch(mode)
+	  {
+	  case 0:
+		  return "RGB";
+	  case 1:
+		  return "BRG";
+	  case 2:
+		  return "GBR";
+	  case 3:
+		  return "RBG";
+	  case 4:
+		  return "BGR";
+	  default:
+		  return "INVALID!";
+	  }
+  }
 }

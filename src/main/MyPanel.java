@@ -47,8 +47,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 	final int[] JULIA_RENDER_WINDOW_POSITION = new int[] {60, LARGE_RENDER_WINDOW_SIZE+20};
 	Color[][] juliaRenderWindow = new Color[JULIA_RENDER_WINDOW_SIZE][JULIA_RENDER_WINDOW_SIZE];
 	
-	final int PREVIEW_PALETTE_SHIFTS_SIZE = 50;
-	ArrayList<Color[][]> previewPaletteShiftsWindows = new ArrayList<Color[][]>();
+	final int PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE = 50;
+	final int[] PREVIEW_PALETTE_SHIFT_WINDOWS_POSITION = new int[] {480, 360};
+	ArrayList<Color[][]> previewPaletteShiftWindows = new ArrayList<Color[][]>();
 	
 	
 	static String renderOutputPath = "";
@@ -105,7 +106,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 	{
 		//Initializing preview palette shift windows
 		for (int i = 0; i < 5; i++)
-			previewPaletteShiftsWindows.add(new Color[PREVIEW_PALETTE_SHIFTS_SIZE][PREVIEW_PALETTE_SHIFTS_SIZE]);
+			previewPaletteShiftWindows.add(new Color[PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE][PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE]);
 		
 		
 		DataHandler.verifyFiles();
@@ -357,10 +358,10 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 				juliaRenderWindow[ix][iy] = Color.GRAY;
 			}	
 		for (int j = 0; j < 5; j++)
-			for (int ix = 0; ix < PREVIEW_PALETTE_SHIFTS_SIZE; ix++)
-				for (int iy = 0; iy < PREVIEW_PALETTE_SHIFTS_SIZE; iy++)
+			for (int ix = 0; ix < PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE; ix++)
+				for (int iy = 0; iy < PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE; iy++)
 				{
-					previewPaletteShiftsWindows.get(j)[ix][iy] = Color.GRAY;
+					previewPaletteShiftWindows.get(j)[ix][iy] = Color.GRAY;
 				}	
 		
 		this.addMouseListener(new MouseAdapter() {
@@ -413,6 +414,21 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 			{
 				g2D.setColor(juliaRenderWindow[ix][iy]);
 				g2D.drawLine(ix+JULIA_RENDER_WINDOW_POSITION[0], iy+JULIA_RENDER_WINDOW_POSITION[1], ix+JULIA_RENDER_WINDOW_POSITION[0], iy+JULIA_RENDER_WINDOW_POSITION[1]);
+			}
+		if (previewPaletteShifts)
+			for (int j = 0; j < 5; j++)
+			{
+				int positionX = PREVIEW_PALETTE_SHIFT_WINDOWS_POSITION[0] + j * (PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE + 10);
+				int positionY = PREVIEW_PALETTE_SHIFT_WINDOWS_POSITION[1];
+				g2D.setColor(Color.WHITE);
+				g2D.drawString(Palette.getPaletteShiftModeString(j), positionX, positionY-1);
+				
+				for (int ix = 0; ix < PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE; ix++) 
+					for (int iy = 0; iy < PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE; iy++)
+					{
+						g2D.setColor(previewPaletteShiftWindows.get(j)[ix][iy]);
+						g2D.drawLine(ix+positionX, iy+positionY, ix+positionX, iy+positionY);
+					}
 			}
 		
 		/////////////////////////////////////////////////
@@ -495,14 +511,14 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		if (FractalCalculator.verifyCurrentPalette())
 
 				IntStream.range(0, PREVIEW_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
-					FractalCalculator.calcFractalColumn(previewRenderWindow, i, false, 0, 0);
+					FractalCalculator.calcFractalColumn(previewRenderWindow, i, false, 0, 0, -1);
 				});
 	}
 	public void renderLargeWindow()
 	{
 		if (FractalCalculator.verifyCurrentPalette())
 			IntStream.range(0, LARGE_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
-				FractalCalculator.calcFractalColumn(largeRenderWindow, i, false, 0, 0);
+				FractalCalculator.calcFractalColumn(largeRenderWindow, i, false, 0, 0, -1);
 			});
 		else
 			callErrorFrame("Invalid palette!");
@@ -512,8 +528,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 			for (int j = 0; j < 5; j++)
 			{
 				int h = j;
-				IntStream.range(0, LARGE_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
-					FractalCalculator.calcFractalColumn(previewPaletteShiftsWindows.get(h), i, false, 0, 0);
+				IntStream.range(0, PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE).parallel().forEach(i -> { 
+					FractalCalculator.calcFractalColumn(previewPaletteShiftWindows.get(h), i, false, 0, 0, h);
 				});
 			}
 		}
@@ -522,14 +538,10 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 	{
 		if (FractalCalculator.verifyCurrentPalette())
 			IntStream.range(0, JULIA_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
-				FractalCalculator.calcFractalColumn(juliaRenderWindow, i, true, juliaPoint.getR(), juliaPoint.getI());
+				FractalCalculator.calcFractalColumn(juliaRenderWindow, i, true, juliaPoint.getR(), juliaPoint.getI(), -1);
 			});
 		else
 			callErrorFrame("Invalid palette!");
-	}
-	public void renderPreviewPaletteShifts()
-	{
-		
 	}
 	public void renderImage(boolean julia)
 	{
@@ -554,12 +566,12 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 				
 				if (julia)
 					IntStream.range(0, renderImageSize).parallel().forEach(i -> { 
-						FractalCalculator.calcFractalColumn(buff, i, true, juliaPoint.getR(), juliaPoint.getI());
+						FractalCalculator.calcFractalColumn(buff, i, true, juliaPoint.getR(), juliaPoint.getI(), -1);
 					});
 				
 				else
 					IntStream.range(0, renderImageSize).parallel().forEach(i -> { 
-						FractalCalculator.calcFractalColumn(buff, i, false, 0, 0);
+						FractalCalculator.calcFractalColumn(buff, i, false, 0, 0, -1);
 					});
 				
 				RenderProgressJPanel.endStopwatch();
