@@ -384,7 +384,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 			
 		});
 	}
-
+	
 	public void paint(Graphics g)
 	{
 		super.paint(g);
