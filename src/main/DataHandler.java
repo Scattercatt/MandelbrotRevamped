@@ -19,7 +19,7 @@ public class DataHandler {
 	public static void write() throws IOException
 	{
 		FileWriter fw = new FileWriter(dataDir+dataFileDir);
-		fw.write(MyPanel.renderOutputPath);
+		fw.write(MyPanel.getRenderOutputPath());
 		
 		
 		fw.close();
@@ -33,7 +33,7 @@ public class DataHandler {
 		Scanner sc = new Scanner(df);
 		Palette.downloadPalettes(FractalCalculator.palettes, pf);
 		
-		MyPanel.renderOutputPath = sc.nextLine();
+		MyPanel.setRenderOutputPath(sc.nextLine());
 		
 		sc.close();
 	}

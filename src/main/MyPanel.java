@@ -52,7 +52,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 	ArrayList<Color[][]> previewPaletteShiftWindows = new ArrayList<Color[][]>();
 	
 	
-	static String renderOutputPath = "";
+	private static String renderOutputPath = "";
 	
 	//Positions of UI ///////////////////////////////////////////////
 	final int[] POSITION_CALCTEXT = new int[] {480, 40};
@@ -905,5 +905,13 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 	public static boolean getPreviewPaletteShifts()
 	{
 		return previewPaletteShifts;
+	}
+	public static void setRenderOutputPath(String x)
+	{
+		renderOutputPath = x;
+	}
+	public static String getRenderOutputPath()
+	{
+		return renderOutputPath;
 	}
 }

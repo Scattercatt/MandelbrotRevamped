@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 public class Driver {
@@ -65,7 +66,7 @@ public class Driver {
 			
 			prompt_setOutput.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			JTextField field = new JTextField();
-			field.setText(MyPanel.renderOutputPath);
+			field.setText(MyPanel.getRenderOutputPath());
 			prompt_setOutput.add(field);
 			
 			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -77,14 +78,17 @@ public class Driver {
 			prompt_setOutput.setResizable(false);
 			
 			field.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-				MyPanel.renderOutputPath = field.getText();
-				try {
-					DataHandler.write();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				if (new File(field.getText()).isDirectory())
+				{
+					MyPanel.setRenderOutputPath(field.getText());
+					try {
+						DataHandler.write();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					prompt_setOutput.dispose();
 				}
-				prompt_setOutput.dispose();
 			}});
 			
 		}});

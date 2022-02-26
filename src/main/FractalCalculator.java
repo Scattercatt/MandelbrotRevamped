@@ -74,10 +74,22 @@ public class FractalCalculator {
 		Complex c, z;
 		int jy = 0;
 		
-		double p1x = cameraP1[0];
-		double p1y = cameraP1[1];
-		double p2x = cameraP2[0];
-		double p2y = cameraP2[1];
+		double p1x, p1y, p2x, p2y;
+		
+		if (julia)
+		{
+			p1x = juliaCameraP1[0];
+			p1y = juliaCameraP1[1];
+			p2x = juliaCameraP2[0];
+			p2y = juliaCameraP2[1];
+		}
+		else
+		{
+			p1x = cameraP1[0];
+			p1y = cameraP1[1];
+			p2x = cameraP2[0];
+			p2y = cameraP2[1];
+		}
 		
 		
 		double xval = (p2x - p1x) / id.length * column;
