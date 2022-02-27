@@ -143,7 +143,7 @@ public class FractalCalculator {
 						if (colorInsidePixels)
 							points.add(c);
 			
-						while (!calcBailout(z) && iterations < maxIterations) // x*x + y*y < 4
+						while (!calcBailout(z) && iterations < maxIterations) 
 						{
 							
 							z = ZIterative(z, c);
@@ -491,7 +491,7 @@ public class FractalCalculator {
 	     Z = new Complex(Z.getR() + Math.abs(Z.getI()), Z.getI() + Math.abs(Z.getR())).add(C);
 	     return Z;
 		case 22:
-	     Z = new Complex(Z.getR()+Math.abs(Z.getI()) + C.getR(), Z.getI() - C.getI() + Z.getR());
+	     Z = new Complex( Z.getR()+Math.abs(Z.getI()) + C.getR(), Z.getI() - C.getI() + Z.getR() );
 	     return Z;
 		case 23:
 	     Z = Z.add(C);

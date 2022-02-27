@@ -135,7 +135,7 @@ public class InSetCalculator {
 			@Override
 			public int calculateMax(ArrayList<Complex> c)
 			{
-				return 1000;
+				return 100;
 			}
 		
 		});
@@ -149,7 +149,7 @@ public class InSetCalculator {
 			@Override
 			public int calculateMax(ArrayList<Complex> c)
 			{
-				return 1000;
+				return 100;
 			}
 		});
 		iscList.add(new InSetCalculator("Longest distance")		
@@ -164,6 +164,20 @@ public class InSetCalculator {
 			{
 				return c.size();
 			}
+		});
+		iscList.add(new InSetCalculator("Test")
+		{
+			@Override
+			public int calculateVariable(ArrayList<Complex> c)
+			{
+				return (int) Math.round(distance(c, 0, c.size()-1) * (1000.0*c.size()));
+			}
+			@Override
+			public int calculateMax(ArrayList<Complex> c)
+			{
+				return 1000*c.size();
+			}
+		
 		});
 	}
 }
