@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Driver {
 	
@@ -14,6 +15,8 @@ public class Driver {
 	public static void main(String[] args) {
 		
 		System.out.println(String.format("%,d", Runtime.getRuntime().maxMemory()));
+		
+		
 		
 		JFrame f = new JFrame("Mandelbrot Revamped 2.0");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -228,8 +231,42 @@ public class Driver {
 		setPaletteShiftModeMenu.add(psmo_GBR);
 		setPaletteShiftModeMenu.add(psmo_RBG);
 		setPaletteShiftModeMenu.add(psmo_BGR);
-		
 		editMenu.add(setPaletteShiftModeMenu);
+		
+		JMenu setInSetCalculator = new JMenu("In-set Calculator");
+		ArrayList<JRadioButtonMenuItem> iscRadioButtons = new ArrayList<JRadioButtonMenuItem>();
+		ButtonGroup iscGroup = new ButtonGroup();
+		
+		for (int i = 0; i < InSetCalculator.getList().size(); i++)
+		{
+			//Stupid variable name. In Set Calculator J Radio Button Menu Item. temp varible
+			JRadioButtonMenuItem iscjrbmi = new JRadioButtonMenuItem(InSetCalculator.getList().get(i).getName());
+			iscjrbmi.setSelected(i == 0);
+			iscjrbmi.addActionListener(new ISCActionListener(InSetCalculator.getList().get(i)));
+			iscGroup.add(iscjrbmi);
+			setInSetCalculator.add(iscjrbmi);
+		}
+		
+		/*
+		JRadioButtonMenuItem isc_averageDistance = new JRadioButtonMenuItem("Average Distance");
+		JRadioButtonMenuItem isc_firstLastDistance = new JRadioButtonMenuItem("First-Last Distance");
+		JRadioButtonMenuItem isc_longestDistance = new JRadioButtonMenuItem("Longest Distance");
+		
+		isc_averageDistance.addActionListener(new ISCActionListener("ISC_averageDistance"));
+		isc_firstLastDistance.addActionListener(new ISCActionListener("ISC_firstLastDistance"));
+		isc_longestDistance.addActionListener(new ISCActionListener("ISC_longestDistance"));
+		
+		
+		
+		iscGroup.add(isc_averageDistance);
+		iscGroup.add(isc_firstLastDistance);
+		iscGroup.add(isc_longestDistance);
+		
+		setInSetCalculator.add(isc_averageDistance);
+		setInSetCalculator.add(isc_firstLastDistance);
+		setInSetCalculator.add(isc_longestDistance);
+		*/
+		editMenu.add(setInSetCalculator);
 		
 		return editMenu;
 	

@@ -16,7 +16,7 @@ public class FractalCalculator {
 			"Psudobrot 1", "Warbled", "Lips", "Claws", "Mandelbrot_D", "J-Star", "Grid", "12", "13", "14", "15", "16", "17", "18", "J-Web", "Manta", "Prism", "22", "23", "24", "25", "26", "27J"};
 	
 	public static int selectedBailout = 0;
-	public static String[] bailoutNames = new String[] {"Basic", "Follicle"};
+	public static String[] bailoutNames = new String[] {"Basic", "Follicle", "Jungle", "Amazon"};
 	
 	public static int maxIterations = 300;
 	
@@ -42,9 +42,10 @@ public class FractalCalculator {
 	public static boolean colorInsidePixels = false;
 	public static boolean colorOutsidePixels = true;
 	
-	
-	
-	
+
+
+	private static InSetCalculator selectedInSetCalculator = null;
+
 	private static boolean calcBailout(Complex Z)
 	{
 		switch (selectedBailout)
@@ -57,6 +58,12 @@ public class FractalCalculator {
 		       if (Z.getR() * Z.getI() > 1000)
 		         return true;
 		       break;
+		     case 2:
+		       if (Z.getR() * Z.getI() > Z.getI() * Z.getI())
+		    	 return true;
+		     case 3:
+		       if (Z.getR() > 0.3 && Z.getI() > 0.3)
+			     return true;
 		     default:
 		    	 return false;
 		}
@@ -97,9 +104,6 @@ public class FractalCalculator {
 		
 		int iterations;
 
-		double distanceSum = 0.0;
-		Complex previousPoint = null, currentPoint = null;
-
 		for (double iy = p1y; jy < id.length; iy = iy + ((p2y - p1y) / id.length), jy++)
 		{
 			//renderDetail is by default 0, indicating that no subdividing & averaging of pixels dont happen
@@ -119,7 +123,8 @@ public class FractalCalculator {
 							hdy < iy + ((p2y - p1y) / (double) id.length); 
 							hdy += (p2y - p1y) / (double) id.length / Math.pow(2, renderDetail))
 					{
-						distanceSum = 0.0;
+						ArrayList<Complex> points = (colorInsidePixels) ? new ArrayList<Complex>() : null;
+
 						iterations = 0;
 						
 						if (julia)
@@ -136,21 +141,15 @@ public class FractalCalculator {
 						}
 						
 						if (colorInsidePixels)
-							currentPoint = new Complex(c);
+							points.add(c);
 			
 						while (!calcBailout(z) && iterations < maxIterations) // x*x + y*y < 4
 						{
-							if (colorInsidePixels)
-								previousPoint = new Complex(currentPoint);
 							
 							z = ZIterative(z, c);
 							
 							if (colorInsidePixels)
-							{
-								currentPoint = new Complex(z);
-								
-								distanceSum += complexDistance(currentPoint, previousPoint);
-							}
+								points.add(z);
 							
 							iterations++;
 							RenderProgressJPanel.incIC();
@@ -160,7 +159,12 @@ public class FractalCalculator {
 						
 						if (iterations == maxIterations)
 							if (colorInsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
+							{
+								int variableNum = selectedInSetCalculator.calculateVariable(points);
+								int maxNum = selectedInSetCalculator.calculateMax(points);
+								colors.add(palettes.get(selectedPalette).calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
+								
+							}
 							else
 								colors.add(Color.BLACK);
 						else
@@ -178,7 +182,8 @@ public class FractalCalculator {
 			}
 			else
 			{
-				distanceSum = 0.0;
+				ArrayList<Complex> points = (colorInsidePixels) ? new ArrayList<Complex>() : null;
+				
 				iterations = 0;
 				
 				if (julia)
@@ -195,29 +200,28 @@ public class FractalCalculator {
 				}
 				
 				if (colorInsidePixels)
-					currentPoint = new Complex(c);
+					points.add(c);
 				
 				while (!calcBailout(z) && iterations < maxIterations) 
 				{
-					if (colorInsidePixels)
-						previousPoint = new Complex(currentPoint);
-					
 					z = ZIterative(z, c);
 					
 					if (colorInsidePixels)
-					{
-						currentPoint = new Complex(z);
-						
-						distanceSum += complexDistance(currentPoint, previousPoint);
-					}
+						points.add(z);
 					
 					iterations++;
 					RenderProgressJPanel.incIC();
 					//totalIterationsCalculated++;
 				}
+				
 				if (iterations == maxIterations)
 					if (colorInsidePixels)
-						id[column][jy] = palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
+					{
+						int variableNum = selectedInSetCalculator.calculateVariable(points);
+						int maxNum = selectedInSetCalculator.calculateMax(points);
+						id[column][jy] = palettes.get(selectedPalette).calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
+						
+					}	
 					else
 						id[column][jy] = Color.BLACK;
 				else
@@ -225,6 +229,7 @@ public class FractalCalculator {
 						id[column][jy] = palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
 					else
 						id[column][jy] = Color.BLACK;
+
 				RenderProgressJPanel.incPC();
 
 			}
@@ -251,9 +256,6 @@ public class FractalCalculator {
 		
 		int iterations;
 
-		double distanceSum = 0.0;
-		Complex previousPoint = null, currentPoint = null;
-
 		for (double iy = p1y; jy < id.getWidth(); iy = iy + ((p2y - p1y) / id.getWidth()), jy++)
 		{
 			if (renderDetail != 0)
@@ -272,7 +274,8 @@ public class FractalCalculator {
 							hdy < iy + ((p2y - p1y) / (double) id.getWidth()); 
 							hdy += (p2y - p1y) / (double) id.getWidth() / Math.pow(2, renderDetail))
 					{
-						distanceSum = 0.0;
+						ArrayList<Complex> points = (colorInsidePixels) ? new ArrayList<Complex>() : null;
+						
 						iterations = 0;
 						
 						if (julia)
@@ -289,20 +292,15 @@ public class FractalCalculator {
 						}
 						
 						if (colorInsidePixels)
-							currentPoint = new Complex(c);
+							points.add(c);
 			
 						while (!calcBailout(z) && iterations < maxIterations) // x*x + y*y < 4
 						{
-							if (colorInsidePixels)
-							previousPoint = new Complex(currentPoint);
 							
 							z = ZIterative(z, c);
+
 							if (colorInsidePixels)
-							{
-								currentPoint = new Complex(z);
-								
-								distanceSum += complexDistance(currentPoint, previousPoint);
-							}
+								points.add(z);
 							
 							iterations++;
 							RenderProgressJPanel.incIC();
@@ -312,7 +310,11 @@ public class FractalCalculator {
 						
 						if (iterations == maxIterations)
 							if (colorInsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
+							{
+								int variableNum = selectedInSetCalculator.calculateVariable(points);
+								int maxNum = selectedInSetCalculator.calculateMax(points);
+								colors.add(palettes.get(selectedPalette).calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
+							}	
 							else
 								colors.add(Color.BLACK);
 						else
@@ -333,7 +335,9 @@ public class FractalCalculator {
 			else
 			{
 				Color col;
-				distanceSum = 0.0;
+				
+				ArrayList<Complex> points = (colorInsidePixels) ? new ArrayList<Complex>() : null;
+				
 				iterations = 0;
 				
 				if (julia)
@@ -350,21 +354,15 @@ public class FractalCalculator {
 				}
 				
 				if (colorInsidePixels)
-					currentPoint = new Complex(c);
+					points.add(c);
 				
 				while (!calcBailout(z) && iterations < maxIterations) 
 				{
-					if (colorInsidePixels)
-					previousPoint = new Complex(currentPoint);
 					
 					z = ZIterative(z, c);
 					
 					if (colorInsidePixels)
-					{
-						currentPoint = new Complex(z);
-						
-						distanceSum += complexDistance(currentPoint, previousPoint);
-					}
+						points.add(z);
 					
 					iterations++;
 					RenderProgressJPanel.incIC();
@@ -372,7 +370,12 @@ public class FractalCalculator {
 				}
 				if (iterations == maxIterations)
 					if (colorInsidePixels)
-						col = palettes.get(selectedPalette).calculate((int) Math.round(distanceSum/ (double) maxIterations * 1000), 1000, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
+					{
+						int variableNum = selectedInSetCalculator.calculateVariable(points);
+						int maxNum = selectedInSetCalculator.calculateMax(points);
+						col = palettes.get(selectedPalette).calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
+						
+					}	
 					else
 						col = Color.BLACK;
 				else
@@ -572,11 +575,7 @@ public class FractalCalculator {
 	{
 		return fractalNames[selectedFractal];
 	}
-	private static double complexDistance(Complex a, Complex b)
-	{
-		return Math.sqrt( Math.pow(a.getR()-b.getR(),2) + Math.pow(a.getI()-b.getI(), 2) );
-	}
-	
+
 	public static void setPaletteShiftMode(int x)
 	{
 		paletteShiftMode = x;
@@ -584,6 +583,11 @@ public class FractalCalculator {
 	public static int getPaletteShiftMode()
 	{
 		return paletteShiftMode;
+	}
+	
+	public static void setInSetCalculator(InSetCalculator isc)
+	{
+		selectedInSetCalculator = isc;
 	}
 	
 }

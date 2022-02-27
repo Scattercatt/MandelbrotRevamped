@@ -15,7 +15,7 @@ class PSMOActionListener implements ActionListener
 		this.mode = mode;
 	}
 	
-	@Override
+	
 	public void actionPerformed(ActionEvent e) {
 		FractalCalculator.setPaletteShiftMode(mode);
 		

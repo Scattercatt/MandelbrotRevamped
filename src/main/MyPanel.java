@@ -104,6 +104,10 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 	
 	MyPanel()
 	{
+		//Initializing InSetCalclators 
+		InSetCalculator.initializeList();
+		FractalCalculator.setInSetCalculator(InSetCalculator.getList().get(0));
+		
 		//Initializing preview palette shift windows
 		for (int i = 0; i < 5; i++)
 			previewPaletteShiftWindows.add(new Color[PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE][PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE]);
@@ -167,8 +171,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		southPanelT.add(btn_renderPreview);
 		
 		rbtn_1xQuality = new JRadioButton("1x");
-		rbtn_2xQuality = new JRadioButton("2x");
-		rbtn_4xQuality = new JRadioButton("4x");
+		rbtn_2xQuality = new JRadioButton("4x");
+		rbtn_4xQuality = new JRadioButton("16x");
 		bg_quality = new ButtonGroup();
 		
 		bg_quality.add(rbtn_1xQuality);
@@ -240,31 +244,6 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		//South panel Bottom
 		JPanel southPanelB = new JPanel();
 		southPanelB.setLayout(new BoxLayout(southPanelB, BoxLayout.X_AXIS));
-		
-		southPanelB.add(new JLabel("Image Render Size"));
-		
-		tf_imageRenderSize = new JTextField(1);
-		tf_imageRenderSize.setToolTipText("Size out the output image. Higher values take exponentially longer.");
-		tf_imageRenderSize.setFocusable(false);
-		tf_imageRenderSize.setAlignmentX(0f);
-		southPanelB.add(tf_imageRenderSize);
-		
-		JButton btn_incImageRenderSize = new JButton("+");
-		btn_incImageRenderSize.setFocusable(false);
-		btn_incImageRenderSize.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {
-			if (renderImageSize < 50000)
-				renderImageSize+= 500;
-		}});
-		southPanelB.add(btn_incImageRenderSize);
-		
-		JButton btn_decImageRenderSize = new JButton("-");
-		btn_decImageRenderSize.setFocusable(false);
-		btn_decImageRenderSize.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {
-			if (renderImageSize > 500)
-				renderImageSize -= 500;
-		}});
-		southPanelB.add(btn_decImageRenderSize);
-		
 		
 		southPanel.add(southPanelB);
 		
@@ -391,8 +370,6 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		
 		this.setBackground(Color.DARK_GRAY);
 		
-		tf_imageRenderSize.setText(String.format("%d", renderImageSize));
-		
 		Graphics2D g2D = (Graphics2D) g;
 		
 		
@@ -482,7 +459,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		g2D.drawString(String.format("%d",FractalCalculator.colorOffset), POSITION_COLORTEXT[0]+80, POSITION_COLORTEXT[1]+60);
 		
 		g2D.setColor(Color.RED);
-		g2D.drawString("WARNING: This program is made to use 100% of your CPU. Responsibility for heat damage lies on the user, so do not use if you have poor CPU cooling!", 5, this.getHeight()-60);
+		g2D.drawString("WARNING: This program is made to use 100% of your CPU. Responsibility for heat damage lies on the user, so do not use if you have poor CPU cooling!", 5, this.getHeight()-30);
 		g2D.setColor(Color.WHITE);
 		
 		
