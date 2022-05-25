@@ -7,14 +7,14 @@ import java.util.Scanner;
 
 public class DataHandler {
 	
-	public static String dataDir = "C:\\Users\\"+System.getProperty("user.name")+"\\Documents\\MandelbrotRevamped\\";
+	private static String dataDir = "C:\\Users\\"+System.getProperty("user.name")+"\\Documents\\MandelbrotRevamped\\";
 	
-	public static String pictureDir = "Render\\";
+	private static String pictureDir = "Render\\";
 	
-	public static String dataFileDir = "data.dat";
-	public static String paletteFileDir = "palettes.dat";
+	private static String dataFileDir = "data.dat";
+	private static String paletteFileDir = "palettes.dat";
 	
-	public static final String[] DEFAULT_PALETTES = new String[] {"3_Color_(Alt) > 0,255,255 > 255,0,255 > 255,255,0 % a", "3_Color_(Basic) > 255,0,0 > 0,255,0 > 0,0,255 % a", "Sunny > 0,0,255 > 255,255,255 > 255,255,0 > 255,0,0 % a"};
+	private static final String[] DEFAULT_PALETTES = new String[] {"3_Color_(Alt) > 0,255,255 > 255,0,255 > 255,255,0 % a", "3_Color_(Basic) > 255,0,0 > 0,255,0 > 0,0,255 % a", "Sunny > 0,0,255 > 255,255,255 > 255,255,0 > 255,0,0 % a"};
 	
 	public static void write() throws IOException
 	{
@@ -31,7 +31,9 @@ public class DataHandler {
 		File pf = new File(dataDir+paletteFileDir);
 		
 		Scanner sc = new Scanner(df);
-		Palette.downloadPalettes(FractalCalculator.palettes, pf);
+		Palette.downloadPalettes(FractalCalculator.getPaletteArray(), pf);
+		
+		Palette.saveRandomPalette(pf);
 		
 		MyPanel.setRenderOutputPath(sc.nextLine());
 		
@@ -73,5 +75,39 @@ public class DataHandler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static String getDataDir()
+	{
+		return dataDir;
+	}
+	public static String getPictureDir()
+	{
+		return pictureDir;
+	}
+	public static String getDataFileDir()
+	{
+		return dataFileDir;
+	}
+	public static String getPaletteFileDir()
+	{
+		return paletteFileDir;
+	}
+	
+	public static void setDataDir(String s)
+	{
+		dataDir = s;
+	}
+	public static void setPictureDir(String s)
+	{
+		pictureDir = s;
+	}
+	public static void setDataFileDir(String s)
+	{
+		dataFileDir = s;
+	}
+	public static void setPaletteFileDir(String s)
+	{
+		paletteFileDir = s;
 	}
 }

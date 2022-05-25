@@ -110,7 +110,7 @@ public class Driver {
 			
 			prompt_setOutput.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			JTextField field = new JTextField();
-			field.setText(String.format("%d",FractalCalculator.maxIterations));
+			field.setText(String.format("%d",FractalCalculator.getMaxIterations()));
 			prompt_setOutput.add(field);
 			
 			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -122,7 +122,7 @@ public class Driver {
 			prompt_setOutput.setResizable(false);
 			
 			field.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-				FractalCalculator.maxIterations = Integer.parseInt(field.getText());
+				FractalCalculator.setMaxIterations(Integer.parseInt(field.getText()));
 				prompt_setOutput.dispose();
 			}});
 			
@@ -135,7 +135,7 @@ public class Driver {
 			
 			prompt_setOutput.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			JTextField field = new JTextField();
-			field.setText(String.format("%d",FractalCalculator.modulusColorDivisions));
+			field.setText(String.format("%d",FractalCalculator.getModulusColorDivision()));
 			prompt_setOutput.add(field);
 			
 			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -147,7 +147,7 @@ public class Driver {
 			prompt_setOutput.setResizable(false);
 			
 			field.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-				FractalCalculator.modulusColorDivisions = Integer.parseInt(field.getText());
+				FractalCalculator.setModulusColorDivision(Integer.parseInt(field.getText()));
 				prompt_setOutput.dispose();
 			}});
 			
@@ -185,7 +185,7 @@ public class Driver {
 			
 			prompt_setOutput.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			JTextField field = new JTextField();
-			field.setText(String.format("%d",FractalCalculator.colorOffset));
+			field.setText(String.format("%d",FractalCalculator.getColorOffset()));
 			prompt_setOutput.add(field);
 			
 			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -197,7 +197,7 @@ public class Driver {
 			prompt_setOutput.setResizable(false);
 			
 			field.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-				FractalCalculator.colorOffset = Integer.parseInt(field.getText());
+				FractalCalculator.setColorOffset(Integer.parseInt(field.getText()));
 				prompt_setOutput.dispose();
 			}});
 			

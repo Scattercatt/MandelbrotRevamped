@@ -108,6 +108,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		InSetCalculator.initializeList();
 		FractalCalculator.setInSetCalculator(InSetCalculator.getList().get(0));
 		
+		//Initializing fractals
+		FractalCalculator.initializeFractals();
+		
 		//Initializing preview palette shift windows
 		for (int i = 0; i < 5; i++)
 			previewPaletteShiftWindows.add(new Color[PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE][PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE]);
@@ -141,18 +144,18 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		
 		cb_colorInsidePoints = new JCheckBox("Inside points");
 		cb_colorInsidePoints.setFocusable(false);
-		cb_colorInsidePoints.setSelected(FractalCalculator.colorInsidePixels);
+		cb_colorInsidePoints.setSelected(FractalCalculator.getColorInsidePixels());
 		cb_colorInsidePoints.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			FractalCalculator.colorInsidePixels = cb_colorInsidePoints.isSelected();
+			FractalCalculator.setColorInsidePixels(cb_colorInsidePoints.isSelected());
 			renderFinderWindow();
 		}});
 		southPanelT.add(cb_colorInsidePoints);
 		
 		cb_colorOutsidePoints = new JCheckBox("Outside points");
 		cb_colorOutsidePoints.setFocusable(false);
-		cb_colorOutsidePoints.setSelected(FractalCalculator.colorOutsidePixels);
+		cb_colorOutsidePoints.setSelected(FractalCalculator.getColorOutsidePixels());
 		cb_colorOutsidePoints.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			FractalCalculator.colorOutsidePixels = cb_colorOutsidePoints.isSelected();
+			FractalCalculator.setColorOutsidePixels(cb_colorOutsidePoints.isSelected());
 			renderFinderWindow();
 		}});
 		southPanelT.add(cb_colorOutsidePoints);
@@ -181,19 +184,19 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
 		rbtn_1xQuality.setFocusable(false);
 		rbtn_1xQuality.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			FractalCalculator.renderDetail = 0;
+			FractalCalculator.setRenderDetail(0);
 			renderFinderWindow();
 		}});
 		
 		rbtn_2xQuality.setFocusable(false);
 		rbtn_2xQuality.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			FractalCalculator.renderDetail = 1;
+			FractalCalculator.setRenderDetail(1);
 			renderFinderWindow();
 		}});
 		
 		rbtn_4xQuality.setFocusable(false);
 		rbtn_4xQuality.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			FractalCalculator.renderDetail = 2;
+			FractalCalculator.setRenderDetail(2);;
 			renderFinderWindow();
 		}});
 				
@@ -278,7 +281,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		btn_incOffset = new JButton("/\\");
 		btn_incOffset.setFocusable(false);
 		btn_incOffset.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			FractalCalculator.colorOffset++;
+			FractalCalculator.addToColorOffset(1);
 			renderFinderWindow();
 		}});
 		eastPanelR.add(btn_incOffset);
@@ -286,9 +289,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		btn_decOffset = new JButton("\\/");
 		btn_decOffset.setFocusable(false);
 		btn_decOffset.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			if (FractalCalculator.colorOffset > 0)
+			if (FractalCalculator.getColorOffset() > 0)
 			{
-				FractalCalculator.colorOffset--;
+				FractalCalculator.addToColorOffset(-1);
 				renderFinderWindow();
 			}
 		}});
@@ -353,8 +356,10 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 						e.getY() < LARGE_RENDER_WINDOW_POSITION[1] + LARGE_RENDER_WINDOW_SIZE
 						)
 				{
-					double x = (FractalCalculator.cameraP2[0] - FractalCalculator.cameraP1[0]) * ((double)e.getX()-LARGE_RENDER_WINDOW_POSITION[0]) / (double)LARGE_RENDER_WINDOW_SIZE + FractalCalculator.cameraP1[0];
-					double y = (FractalCalculator.cameraP2[1] - FractalCalculator.cameraP1[1]) * ((double)e.getY()-LARGE_RENDER_WINDOW_POSITION[1]) / (double)LARGE_RENDER_WINDOW_SIZE + FractalCalculator.cameraP1[1];
+					double[] p1 = FractalCalculator.getCameraP1();
+					double[] p2 = FractalCalculator.getCameraP2();
+					double x = (p2[0] - p1[0]) * ((double)e.getX()-LARGE_RENDER_WINDOW_POSITION[0]) / (double)LARGE_RENDER_WINDOW_SIZE + p1[0];
+					double y = (p2[1] - p1[1]) * ((double)e.getY()-LARGE_RENDER_WINDOW_POSITION[1]) / (double)LARGE_RENDER_WINDOW_SIZE + p1[1];
 					juliaPoint = new Complex(x, y);
 					
 					jwr.start();
@@ -410,6 +415,11 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		
 		/////////////////////////////////////////////////
 		//CALC TEXT/////////////////////////////////////
+		
+		double[] p1 = getP1();
+		double[] p2 = getP2();
+		
+		
 		g2D.setColor(Color.WHITE);
 		
 		g2D.drawLine(POSITION_CALCTEXT[0], POSITION_CALCTEXT[1]-16, POSITION_CALCTEXT[0], POSITION_CALCTEXT[1]+100);
@@ -418,20 +428,20 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		g2D.drawString("==================", POSITION_CALCTEXT[0], POSITION_CALCTEXT[1]-10);
 		
 		g2D.drawString("Fractal:", POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]);
-		g2D.drawString(String.format("%s",FractalCalculator.selectedFractal), POSITION_CALCTEXT[0]+80, POSITION_CALCTEXT[1]);
+		g2D.drawString(String.format("%s",FractalCalculator.getSelectedFractal()), POSITION_CALCTEXT[0]+80, POSITION_CALCTEXT[1]);
 		g2D.setColor(Color.GREEN);
-		g2D.drawString(String.format("%s",FractalCalculator.fractalNames[FractalCalculator.selectedFractal]), POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+10);
+		g2D.drawString(String.format("%s",FractalCalculator.getCurrentFractalName()), POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+10);
 		g2D.setColor(Color.WHITE);
 		
 		g2D.drawString("Zoom:", POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+30);
-		g2D.drawString(String.format("%.1s",FractalCalculator.cameraP2[0] - FractalCalculator.cameraP1[0]), POSITION_CALCTEXT[0]+80, POSITION_CALCTEXT[1]+30);
+		g2D.drawString(String.format("%.1s",p2[0] - p1[0]), POSITION_CALCTEXT[0]+80, POSITION_CALCTEXT[1]+30);
 		
 		g2D.drawString("Iterations:", POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+50);
-		g2D.drawString(String.format("%d",FractalCalculator.maxIterations), POSITION_CALCTEXT[0]+80, POSITION_CALCTEXT[1]+50);
+		g2D.drawString(String.format("%d",FractalCalculator.getMaxIterations()), POSITION_CALCTEXT[0]+80, POSITION_CALCTEXT[1]+50);
 		
 		g2D.drawString("Bailout:", POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+70);
 		g2D.setColor(Color.GREEN);
-		g2D.drawString(String.format("%s",FractalCalculator.bailoutNames[FractalCalculator.selectedBailout]), POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+80);
+		g2D.drawString(String.format("%s",FractalCalculator.getCurrentBailoutName()), POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+80);
 		g2D.setColor(Color.WHITE);
 		
 		g2D.drawLine(POSITION_CALCTEXT[0]+125, POSITION_CALCTEXT[1]-16, POSITION_CALCTEXT[0]+125, POSITION_CALCTEXT[1]+100);
@@ -445,18 +455,18 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		g2D.drawString("==================", POSITION_COLORTEXT[0], POSITION_COLORTEXT[1]-10);
 		
 		g2D.drawString("Palette:", POSITION_COLORTEXT[0]+2, POSITION_COLORTEXT[1]);
-		g2D.drawString(String.format("%d", FractalCalculator.selectedPalette), POSITION_COLORTEXT[0]+80, POSITION_COLORTEXT[1]);
+		g2D.drawString(String.format("%d", FractalCalculator.getSelectedPalette()), POSITION_COLORTEXT[0]+80, POSITION_COLORTEXT[1]);
 		
-		if (FractalCalculator.palettes.size()-1 < FractalCalculator.selectedPalette) g2D.setColor(Color.RED); else g2D.setColor(Color.GREEN);
+		if (FractalCalculator.getPaletteArraySize()-1 < FractalCalculator.getSelectedPalette()) g2D.setColor(Color.RED); else g2D.setColor(Color.GREEN);
 		
-		g2D.drawString(String.format("%s", (FractalCalculator.palettes.size()-1 < FractalCalculator.selectedPalette) ? "???" : FractalCalculator.palettes.get(FractalCalculator.selectedPalette).getName() ), POSITION_COLORTEXT[0]+2, POSITION_COLORTEXT[1]+10);
+		g2D.drawString(String.format("%s", (FractalCalculator.getPaletteArraySize()-1 < FractalCalculator.getSelectedPalette()) ? "???" : FractalCalculator.getCurrentPaletteName() ), POSITION_COLORTEXT[0]+2, POSITION_COLORTEXT[1]+10);
 		g2D.setColor(Color.YELLOW);
 		
 		g2D.drawString("Color divs:", POSITION_COLORTEXT[0]+2, POSITION_COLORTEXT[1]+30);
-		g2D.drawString(String.format("%d",FractalCalculator.modulusColorDivisions), POSITION_COLORTEXT[0]+80, POSITION_COLORTEXT[1]+30);
+		g2D.drawString(String.format("%d",FractalCalculator.getModulusColorDivision()), POSITION_COLORTEXT[0]+80, POSITION_COLORTEXT[1]+30);
 		
 		g2D.drawString("Color offset:", POSITION_COLORTEXT[0]+2, POSITION_COLORTEXT[1]+60);
-		g2D.drawString(String.format("%d",FractalCalculator.colorOffset), POSITION_COLORTEXT[0]+80, POSITION_COLORTEXT[1]+60);
+		g2D.drawString(String.format("%d",FractalCalculator.getColorOffset()), POSITION_COLORTEXT[0]+80, POSITION_COLORTEXT[1]+60);
 		
 		g2D.setColor(Color.RED);
 		g2D.drawString("WARNING: This program is made to use 100% of your CPU. Responsibility for heat damage lies on the user, so do not use if you have poor CPU cooling!", 5, this.getHeight()-30);
@@ -590,79 +600,84 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		
 		int keyCode = e.getKeyCode();
 		
+		double[] p1 = getP1();
+		double[] p2 = getP2();
+		
 		switch (keyCode)
 		{
 		//Basic finder window movement controls
 			case KeyEvent.VK_LEFT:
-				movementDistance = (FractalCalculator.cameraP2[0] - FractalCalculator.cameraP1[0]) * MOVEMENT_PERCENTAGE;
-				FractalCalculator.cameraP1[0] -= movementDistance;
-				FractalCalculator.cameraP2[0] -= movementDistance;
+				movementDistance = (p2[0] - p1[0]) * MOVEMENT_PERCENTAGE;
+				p1[0] -= movementDistance;
+				p2[0] -= movementDistance;
 				renderFinderWindow();
 				
 				break;
 			case KeyEvent.VK_RIGHT:
-				movementDistance = (FractalCalculator.cameraP2[0] - FractalCalculator.cameraP1[0]) * MOVEMENT_PERCENTAGE;
-				FractalCalculator.cameraP1[0] += movementDistance;
-				FractalCalculator.cameraP2[0] += movementDistance;
+				movementDistance = (p2[0] - p1[0]) * MOVEMENT_PERCENTAGE;
+				p1[0] += movementDistance;
+				p2[0] += movementDistance;
 				renderFinderWindow();	
 				break;
 			case KeyEvent.VK_UP:
-				movementDistance = (FractalCalculator.cameraP2[1] - FractalCalculator.cameraP1[1]) * MOVEMENT_PERCENTAGE;
-				FractalCalculator.cameraP1[1] -= movementDistance;
-				FractalCalculator.cameraP2[1] -= movementDistance;
+				movementDistance = (p2[1] - p1[1]) * MOVEMENT_PERCENTAGE;
+				p1[1] -= movementDistance;
+				p2[1] -= movementDistance;
 				renderFinderWindow();	
 				break;
 			case KeyEvent.VK_DOWN:
-				movementDistance = (FractalCalculator.cameraP2[1] - FractalCalculator.cameraP1[1]) * MOVEMENT_PERCENTAGE;
-				FractalCalculator.cameraP1[1] += movementDistance;
-				FractalCalculator.cameraP2[1] += movementDistance;
+				movementDistance = (p2[1] - p1[1]) * MOVEMENT_PERCENTAGE;
+				p1[1] += movementDistance;
+				p2[1] += movementDistance;
 				renderFinderWindow();	
 				break;
 			case KeyEvent.VK_X:
-				zoomDistance = (FractalCalculator.cameraP2[1] - FractalCalculator.cameraP1[1]) * ZOOM_PERCENTAGE;
-				FractalCalculator.cameraP1[0] += zoomDistance;
-				FractalCalculator.cameraP1[1] += zoomDistance;
+				zoomDistance = (p2[1] - p1[1]) * ZOOM_PERCENTAGE;
+				p1[0] += zoomDistance;
+				p1[1] += zoomDistance;
 				
-				FractalCalculator.cameraP2[0] -= zoomDistance;
-				FractalCalculator.cameraP2[1] -= zoomDistance;
+				p2[0] -= zoomDistance;
+				p2[1] -= zoomDistance;
 				renderFinderWindow();
 				break;
 			case KeyEvent.VK_Z:
-				zoomDistance = (FractalCalculator.cameraP2[1] - FractalCalculator.cameraP1[1]) * ZOOM_PERCENTAGE;
-				FractalCalculator.cameraP1[0] -= zoomDistance;
-				FractalCalculator.cameraP1[1] -= zoomDistance;
+				zoomDistance = (p2[1] - p1[1]) * ZOOM_PERCENTAGE;
+				p1[0] -= zoomDistance;
+				p1[1] -= zoomDistance;
 				
-				FractalCalculator.cameraP2[0] += zoomDistance;
-				FractalCalculator.cameraP2[1] += zoomDistance;
+				p2[0] += zoomDistance;
+				p2[1] += zoomDistance;
 				renderFinderWindow();
 				break;
 			case KeyEvent.VK_Q:
-				if (FractalCalculator.maxIterations > 2000)
-					FractalCalculator.maxIterations -= 100;
-				else if (FractalCalculator.maxIterations > 30)
-					FractalCalculator.maxIterations -= 10;
-				else if (FractalCalculator.maxIterations > 0)
-					FractalCalculator.maxIterations--;
+				//Scaling values based on what max iterations is currently set to.
+				if (FractalCalculator.getMaxIterations() > 2000)
+					FractalCalculator.addToMaxIterations(-100);
+				else if (FractalCalculator.getMaxIterations() > 30)
+					FractalCalculator.addToMaxIterations(-10);
+				else if (FractalCalculator.getMaxIterations() > 0)
+					FractalCalculator.addToMaxIterations(-1);
 				renderFinderWindow();
 				break;
 			case KeyEvent.VK_W:
-				if (FractalCalculator.maxIterations > 2000)
-					FractalCalculator.maxIterations += 100;
-				else if (FractalCalculator.maxIterations > 30)
-					FractalCalculator.maxIterations += 10;
+				//Scaling values based on what max iterations is currently set to.
+				if (FractalCalculator.getMaxIterations() > 2000)
+					FractalCalculator.addToMaxIterations(100);
+				else if (FractalCalculator.getMaxIterations() > 30)
+					FractalCalculator.addToMaxIterations(10);
 				else
-					FractalCalculator.maxIterations++;
+					FractalCalculator.addToMaxIterations(1);
 				renderFinderWindow();
 				break;
 			case KeyEvent.VK_A:
-				if (FractalCalculator.modulusColorDivisions > 0)
+				if (FractalCalculator.getModulusColorDivision() > 0)
 				{
-					FractalCalculator.modulusColorDivisions--;
+					FractalCalculator.addToModulusColorDivisions(-1);
 					renderFinderWindow();
 				}
 				break;
 			case KeyEvent.VK_S:
-				FractalCalculator.modulusColorDivisions++;
+				FractalCalculator.addToModulusColorDivisions(1);
 				renderFinderWindow();
 				break;
 			
@@ -742,6 +757,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		Toolkit.getDefaultToolkit().beep();
 	}
 	
+	
+	//This button scrolls up through the palettes
 	private JButton create_btn_incPalette_Button() {
 		JButton button = new JButton("/\\");
 		button.setFocusable(false);
@@ -753,7 +770,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 					public void actionPerformed(ActionEvent e)
 					{
 
-						FractalCalculator.selectedPalette++;
+						FractalCalculator.addToSelectedPalette(1);
 						renderFinderWindow();
 
 					}
@@ -762,6 +779,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		
 		return button;
 	}
+	
+	//This buttons scrolls down through the palettes
 	private JButton create_btn_decPalette_Button() {
 		JButton button = new JButton("\\/");
 		button.setFocusable(false);
@@ -771,8 +790,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						if (FractalCalculator.selectedPalette > 0)
-						FractalCalculator.selectedPalette--;
+						if (FractalCalculator.getSelectedPalette() > 0)
+						FractalCalculator.addToSelectedPalette(-1);
 						renderFinderWindow();
 					}
 				}
@@ -780,6 +799,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		
 		return button;
 	}
+	
+	//This button scrolls up through the selection of fractals
+	//Selected fractal is controlled by an integer, so this function increases the value by 1.
 	private JButton create_btn_incSelectedFractal_Button() {
 		JButton button = new JButton("/\\");
 		button.setFocusable(false);
@@ -790,8 +812,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						if (FractalCalculator.selectedFractal != FractalCalculator.fractalNames.length - 1)
-							FractalCalculator.selectedFractal++;
+						if (FractalCalculator.getSelectedFractal() != FractalCalculator.getFractalArraySize() - 1)
+							FractalCalculator.addToSelectedFractal(1);
 						renderFinderWindow();
 					}
 				}
@@ -799,6 +821,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		
 		return button;
 	}
+	
+	//This button scrolls up through the selection of fractals
+	//Decreases selected fractal by 1
 	private JButton create_btn_decSelectedFractal_Button() {
 		JButton button = new JButton("\\/");
 		button.setFocusable(false);
@@ -808,8 +833,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						if (FractalCalculator.selectedFractal > 0)
-							FractalCalculator.selectedFractal--;
+						if (FractalCalculator.getSelectedFractal()> 0)
+							FractalCalculator.addToSelectedFractal(-1);
 						renderFinderWindow();
 					}
 				}
@@ -817,6 +842,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		
 		return button;
 	}
+	
+	//This button scrolls up through the selection of bailout methods
+	//Selected Bailout is controlled by an integer, so this function increases that value by 1.
 	private JButton create_btn_incBailout_Button() {
 		JButton button = new JButton("/\\");
 		button.setFocusable(false);
@@ -826,8 +854,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						if (FractalCalculator.selectedBailout != FractalCalculator.bailoutNames.length - 1)
-							FractalCalculator.selectedBailout++;
+						if (FractalCalculator.getSelectedBailout() != FractalCalculator.getBailoutNameArray().length - 1)
+							FractalCalculator.addToSelectedBailout(1);
 						renderFinderWindow();
 					}
 				}
@@ -836,6 +864,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		return button;
 		
 	}
+	
+	//This button scrolls down through the selection of bailout methods
+	//Decreases selected bailout by 1
 	private JButton create_btn_decBailout_Button() {
 		JButton button = new JButton("\\/");
 		button.setFocusable(false);
@@ -845,8 +876,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						if (FractalCalculator.selectedBailout > 0)
-							FractalCalculator.selectedBailout--;
+						if (FractalCalculator.getSelectedBailout() > 0)
+							FractalCalculator.addToSelectedBailout(-1);
 						renderFinderWindow();
 						
 					}
@@ -890,5 +921,14 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 	public static String getRenderOutputPath()
 	{
 		return renderOutputPath;
+	}
+	
+	private static double[] getP1()
+	{
+		return FractalCalculator.getCameraP1();
+	}
+	private static double[] getP2()
+	{
+		return FractalCalculator.getCameraP2();
 	}
 }

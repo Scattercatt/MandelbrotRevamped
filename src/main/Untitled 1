@@ -79,3 +79,140 @@ public static void calcMandelbrot(Color[][] c, BigDecimalPoint bdp1, BigDecimalP
 			jy++;
 		}
 	}
+	
+=============================================
+Old fractals
+
+
+
+/*
+		 * 
+		 * case 1:
+			Z = new Complex(Math.abs(Z.getR()), Math.abs(Z.getI()));
+	        Z = Z.mult(Z).add(C);
+	        return Z;
+	    //Scattercatt
+		case 2:
+			Z = Z.mult(C.log());
+	        Z = Z.mult(Z.tan());
+	        Z = Z.add(C);
+	        return Z;
+	    //Butterflies
+		case 3:
+			Z = Z.mult(Z);
+	        Z = Z.tan();
+	        Z = Z.sin();
+	        Z = Z.add(C);
+			return Z;
+		case 4:
+			Z = Z.cosh();
+	        Z = Z.add(C);
+	        Z = Z.tan();
+	        Z = Z.div(C);
+	        Z = Z.log();
+			return Z;
+		case 5:
+         Z = Z.mult(Z.div(C.log())).add(new Complex(C.getR(), C.getI()));
+         break;
+		case 6:
+	     Z = new Complex(warbleDecimal(Z.getR()), warbleDecimal(Z.getI()));
+	     Z = Z.mult(Z).add(C);
+	     return Z;
+		case 7:
+	     Complex t = C.cosh();
+	     Z = new Complex(Z.getR() % t.getR(), Z.getI() % t.getI());
+	     Z = Z.mult(t.add(Z)).add(C);
+	     return Z;
+		case 8:
+	     Complex c8 = C.log();
+	     Z = new Complex(Z.getR() % c8.getR(), Z.getI() % c8.getI());
+	     Z = Z.mult(c8.add(Z)).add(C);
+	     return Z;
+		case 9:
+	     Z = new Complex(Z.getR() + getDecimal(Z.getR()), Z.getI() + getDecimal(Z.getI()));
+	     Z = Z.mult(Z).add(C);
+	     return Z;
+		case 10:
+	     double c10 = getDecimal(Z.getR()) % getDecimal(Z.getI());
+	     Z = new Complex(Z.getR() + c10, Z.getI() + c10);
+	     Z = Z.mult(Z).add(C);
+	     return Z;
+		case 11:
+	     Z = Z.add(new Complex(getDecimal(Z.getR()), getDecimal(Z.getI())));
+	     Z = Z.add(C);
+	     return Z;
+		case 12:
+	     Z = Z.add(C.add(Z.mult(C)));
+	     return Z;
+		case 13:
+	     double c13 = Z.getI()+Z.getR();
+	     Z = Z.mult(new Complex((c13+Z.getR())/2,(c13+Z.getI())/2)).add(C);
+	     return Z;
+		case 14:
+	     Z = Z.add(C.add(Z.mult(C.mult(C))));
+	     return Z;
+		case 15:
+	     Z = Z.add(Z.mult(new Complex(Z.getR(), Z.getI()*Z.getR())));
+	     Z = Z.add(C);
+	     return Z;
+		case 16:
+	     Z = Z.add(Z.mult(new Complex(Z.getR() * Z.getI(), Z.getI()*Z.getR())));
+	     Z = Z.add(C);
+	     return Z;
+		case 17:
+	     Z = Z.add(Z.mult(new Complex(Z.getR() * Z.getI(), Z.getI() + Z.getR())));
+	     Z = Z.add(C);
+	     return Z;
+		case 18:
+	     Z = Z.mult(Z.sub(new Complex(Z.getR() * Z.getI(), Z.getI() + Z.getR())));
+	     Z = Z.add(C);
+	     return Z;
+		case 19:
+	     Z = Z.mult(Z).add(C.div(Z));
+	     return Z;
+		case 20:
+	     Z = new Complex(Z.getR() * Z.getR() + Z.getI(), Z.getI() * Z.getI() + Z.getR());
+	     Z = Z.add(C);
+	     return Z;
+		case 21:
+	     Z = new Complex(Z.getR() * -1, Z.getI() * -1);
+	     Z = new Complex(Z.getR() + Math.abs(Z.getI()), Z.getI() + Math.abs(Z.getR())).add(C);
+	     return Z;
+		case 22:
+	     Z = new Complex( Z.getR()+Math.abs(Z.getI()) + C.getR(), Z.getI() - C.getI() + Z.getR() );
+	     return Z;
+		case 23:
+	     Z = Z.add(C);
+	     Z = new Complex(Z.getI(), Z.getR());
+	     return Z;
+		case 24:
+	     Complex c24 = new Complex(Math.sin(Z.getR()), Math.sin(Z.getI()));
+	     Z = Z.mult(c24);
+	     Z = Z.add(C);
+	     return Z;
+		case 25:
+	     Z = Z.mult(new Complex(Math.log(C.getR()), Math.log(C.getI())));
+	     Z = Z.mult(new Complex(Math.tan(Z.getR()), Math.cos(Z.getI())));
+	     Z = Z.add(C);
+	     return Z;
+		case 26:
+	      Z = new Complex(Z.getR() * -1, Z.getI() * -1);
+	      Z = Z.tan();
+	     Z = Z.div(C);
+	      Z = Z.add(Z.mult(new Complex(Z.getR() * Z.getI(), Z.getI() + Z.getR())));
+	      Z = new Complex(Z.getR() + Math.abs(Z.getI()), Z.getI() + Math.abs(Z.getR())).add(C);
+	     Z = Z.add(C);
+	     return Z;
+		case 27:
+		 Z = Z.tan();
+		 Z = Z.div(C);
+	     return Z;
+	     
+		}
+		
+		private static String[] fractalNames = new String[] {"Mandelbrot Set", "Burning Ship", "Scattercattt", "Butterflies", "Tailing", 
+			"Psudobrot 1", "Warbled", "Lips", "Claws", "Mandelbrot_D", "J-Star", "Grid", "12", "13", "14", "15", "16", "17", "18", "J-Web", "Manta", "Prism", "22", "23", "24", "25", "26", "27J"};
+		 * 
+		 */
+		 
+		 

@@ -7,40 +7,96 @@ import java.util.ArrayList;
 
 public class FractalCalculator {
 	
-	public static ArrayList<Palette> palettes = new ArrayList<Palette>();
 	
-	public static int selectedPalette = 0;
+	/**
+	 * The FractalCalculator class is a mostly static class that handles all of the math besides coloring. It is designed in such a way that 
+	 * rendered images are tunable and customaizable. This class includes many of these tuning knobs such as modulusColorDivisons, colorOffset,
+	 * colorWrapping, and many more. 
+	 * 
+	 * 
+	 * 
+	 * @version 5 May 2022
+	 * @author Gavin Green
+	 * 
+	 */
 	
-	public static int selectedFractal = 0;
-	public static String[] fractalNames = new String[] {"Mandelbrot Set", "Burning Ship", "Scattercattt", "Butterflies", "Tailing", 
+	//This is the list of palettes available to the user. This is filled on startup by the palettes.dat file.
+	private static ArrayList<Palette> palettes = new ArrayList<Palette>();
+	
+	//Points to the palette currently being used.
+	private static int selectedPalette = 0;
+	
+	private static ArrayList<Fractal> fractals = new ArrayList<Fractal>();
+	
+	//Points to the fractal being used. 
+	private static int selectedFractal = 0;
+	//Names of fractals based on value.
+	private static String[] fractalNames = new String[] {"Mandelbrot Set", "Burning Ship", "Scattercattt", "Butterflies", "Tailing", 
 			"Psudobrot 1", "Warbled", "Lips", "Claws", "Mandelbrot_D", "J-Star", "Grid", "12", "13", "14", "15", "16", "17", "18", "J-Web", "Manta", "Prism", "22", "23", "24", "25", "26", "27J"};
 	
-	public static int selectedBailout = 0;
-	public static String[] bailoutNames = new String[] {"Basic", "Follicle", "Jungle", "Amazon"};
+	//Points to the bailout method being used.
+	private static int selectedBailout = 0;
+	//Names of bailout methods.
+	private static String[] bailoutNames = new String[] {"Basic", "Follicle", "Jungle", "Amazon"};
 	
-	public static int maxIterations = 300;
 	
-	public static int modulusColorDivisions = 30;
-	public static boolean colorWrapping = true;
-	public static int colorOffset = 0;
-	public static int paletteShiftMode = 0;
+	//The maximum number of iterations the program will calculate. 
+	private static int maxIterations = 300;
 	
-	public static double cameraP1[] = new double[] {-2, -2};
-	public static double cameraP2[] = new double[] {2, 2};
+	/*
+	 * Modulus color divisions represents how often the palette of colors will loop. For instance:
+	 * If I have a palette that is 0,0,0 > 255,255,255 (black to white), and modulus color divisions is say, 5, then the program will create a gradient of 5 colors in between this palette.
+	 * So the colors used would be:
+	 * 0,0,0 
+	 * 51,51,51
+	 * 102,102,102
+	 * 153,153,153
+	 * 204,204,204
+	 */
+	private static int modulusColorDivisions = 30;
 	
-	public static double juliaCameraP1[] = new double[] {-2, -2};
-	public static double juliaCameraP2[] = new double[] {2, 2};
+	//colorWrapping just determines if the program will use modulus color divisions.
+	private static boolean colorWrapping = true;
 	
+	//colorOffset is the value that the gradient will be shifted by. If this were 5, iterations 0 will instead be colored as if it were iteration 5
+	private static int colorOffset = 0;
+	
+	//paletteShiftMode determines which paletteShiftMode the program is using.
+	//Palette shifts are different modes where the RGB values of colors are swapped around. For instance, one of the options is BRG, which, if its not self explainatory, does this:
+	// R becomes B
+	// G becomes R
+	// B becomes G
+	//Thats just an example of one palette shift mode.
+	private static int paletteShiftMode = 0;
+	
+	//This is the view window of the main fractal. P1 represents the top left, and P2 represents the bottom right. These are their mathematical values. It is CRITICAL that these are doubles, and not floats. 
+	private static double cameraP1[] = new double[] {-2, -2};
+	private static double cameraP2[] = new double[] {2, 2};
+	
+	//Ditto as last comment, but for the julia window. 
+	private static double juliaCameraP1[] = new double[] {-2, -2};
+	private static double juliaCameraP2[] = new double[] {2, 2};
+	
+	//Render detail represents how detailed of a render the program generates. At 0, the render is the basic render method: rendering points for every given position of an array
+	//At 1 and above things get complicated. For 1, the program first *doubles* the size of the array; 100x100 becomes 200x200. each point is calculated in this new large array, and is then averaged back down to 100x100 for finer detail. This exponentially increases render time.
+	//At 2, the program quadruples. (100x100 -> 400x400). this makes render time take 16x longer. Rarely used.
 	//Very sensitive variable. 0 = Standard render. 1 = Double resolution compressed. 2 = Quadruple, etc.
-	public static int renderDetail = 0;
+	private static int renderDetail = 0;
 
+	//Simple constant zero to be used.
 	static final Complex C_ZERO = new Complex(0,0);
 	
 	
 	//////////////////////////////////////////////////
 	
-	public static boolean colorInsidePixels = false;
-	public static boolean colorOutsidePixels = true;
+	//Determines whether pixels calculated to be within the set are colored.
+	private static boolean colorInsidePixels = false;
+	
+	//Determines whether pixels calculated to be outside of the set are colored.
+	private static boolean colorOutsidePixels = true;
+	
+	
+	
 	
 
 
@@ -146,7 +202,8 @@ public class FractalCalculator {
 						while (!calcBailout(z) && iterations < maxIterations) 
 						{
 							
-							z = ZIterative(z, c);
+							//z = ZIterative(z, c);
+							z = fractals.get(selectedFractal).ZIterative(z, c);
 							
 							if (colorInsidePixels)
 								points.add(z);
@@ -204,7 +261,8 @@ public class FractalCalculator {
 				
 				while (!calcBailout(z) && iterations < maxIterations) 
 				{
-					z = ZIterative(z, c);
+					//z = ZIterative(z, c);
+					z = fractals.get(selectedFractal).ZIterative(z, c);
 					
 					if (colorInsidePixels)
 						points.add(z);
@@ -245,10 +303,22 @@ public class FractalCalculator {
 		Complex c, z;
 		int jy = 0;
 		
-		double p1x = cameraP1[0];
-		double p1y = cameraP1[1];
-		double p2x = cameraP2[0];
-		double p2y = cameraP2[1];
+		double p1x, p1y, p2x, p2y;
+		
+		if (julia)
+		{
+			p1x = juliaCameraP1[0];
+			p1y = juliaCameraP1[1];
+			p2x = juliaCameraP2[0];
+			p2y = juliaCameraP2[1];
+		}
+		else
+		{
+			p1x = cameraP1[0];
+			p1y = cameraP1[1];
+			p2x = cameraP2[0];
+			p2y = cameraP2[1];
+		}
 		
 		
 		double xval = (p2x - p1x) / id.getWidth() * column;
@@ -297,7 +367,8 @@ public class FractalCalculator {
 						while (!calcBailout(z) && iterations < maxIterations) // x*x + y*y < 4
 						{
 							
-							z = ZIterative(z, c);
+							//z = ZIterative(z, c);
+							z = fractals.get(selectedFractal).ZIterative(z, c);
 
 							if (colorInsidePixels)
 								points.add(z);
@@ -359,7 +430,8 @@ public class FractalCalculator {
 				while (!calcBailout(z) && iterations < maxIterations) 
 				{
 					
-					z = ZIterative(z, c);
+					//z = ZIterative(z, c);
+					z = fractals.get(selectedFractal).ZIterative(z, c);
 					
 					if (colorInsidePixels)
 						points.add(z);
@@ -389,139 +461,6 @@ public class FractalCalculator {
 			}
 		}
 		RenderProgressJPanel.setJob(column, (byte) 3);
-	}
-	private static Complex ZIterative(Complex Z, Complex C)
-	{
-		switch(selectedFractal)
-		{
-		//Mandelbrot set
-		case 0:
-			Z = Z.mult(Z).add(C);
-			return Z;
-		//Burning ship
-		case 1:
-			Z = new Complex(Math.abs(Z.getR()), Math.abs(Z.getI()));
-	        Z = Z.mult(Z).add(C);
-	        return Z;
-	    //Scattercatt
-		case 2:
-			Z = Z.mult(C.log());
-	        Z = Z.mult(Z.tan());
-	        Z = Z.add(C);
-	        return Z;
-	    //Butterflies
-		case 3:
-			Z = Z.mult(Z);
-	        Z = Z.tan();
-	        Z = Z.sin();
-	        Z = Z.add(C);
-			return Z;
-		case 4:
-			Z = Z.cosh();
-	        Z = Z.add(C);
-	        Z = Z.tan();
-	        Z = Z.div(C);
-	        Z = Z.log();
-			return Z;
-		case 5:
-         Z = Z.mult(Z.div(C.log())).add(new Complex(C.getR(), C.getI()));
-         break;
-		case 6:
-	     Z = new Complex(warbleDecimal(Z.getR()), warbleDecimal(Z.getI()));
-	     Z = Z.mult(Z).add(C);
-	     return Z;
-		case 7:
-	     Complex t = C.cosh();
-	     Z = new Complex(Z.getR() % t.getR(), Z.getI() % t.getI());
-	     Z = Z.mult(t.add(Z)).add(C);
-	     return Z;
-		case 8:
-	     Complex c8 = C.log();
-	     Z = new Complex(Z.getR() % c8.getR(), Z.getI() % c8.getI());
-	     Z = Z.mult(c8.add(Z)).add(C);
-	     return Z;
-		case 9:
-	     Z = new Complex(Z.getR() + getDecimal(Z.getR()), Z.getI() + getDecimal(Z.getI()));
-	     Z = Z.mult(Z).add(C);
-	     return Z;
-		case 10:
-	     double c10 = getDecimal(Z.getR()) % getDecimal(Z.getI());
-	     Z = new Complex(Z.getR() + c10, Z.getI() + c10);
-	     Z = Z.mult(Z).add(C);
-	     return Z;
-		case 11:
-	     Z = Z.add(new Complex(getDecimal(Z.getR()), getDecimal(Z.getI())));
-	     Z = Z.add(C);
-	     return Z;
-		case 12:
-	     Z = Z.add(C.add(Z.mult(C)));
-	     return Z;
-		case 13:
-	     double c13 = Z.getI()+Z.getR();
-	     Z = Z.mult(new Complex((c13+Z.getR())/2,(c13+Z.getI())/2)).add(C);
-	     return Z;
-		case 14:
-	     Z = Z.add(C.add(Z.mult(C.mult(C))));
-	     return Z;
-		case 15:
-	     Z = Z.add(Z.mult(new Complex(Z.getR(), Z.getI()*Z.getR())));
-	     Z = Z.add(C);
-	     return Z;
-		case 16:
-	     Z = Z.add(Z.mult(new Complex(Z.getR() * Z.getI(), Z.getI()*Z.getR())));
-	     Z = Z.add(C);
-	     return Z;
-		case 17:
-	     Z = Z.add(Z.mult(new Complex(Z.getR() * Z.getI(), Z.getI() + Z.getR())));
-	     Z = Z.add(C);
-	     return Z;
-		case 18:
-	     Z = Z.mult(Z.sub(new Complex(Z.getR() * Z.getI(), Z.getI() + Z.getR())));
-	     Z = Z.add(C);
-	     return Z;
-		case 19:
-	     Z = Z.mult(Z).add(C.div(Z));
-	     return Z;
-		case 20:
-	     Z = new Complex(Z.getR() * Z.getR() + Z.getI(), Z.getI() * Z.getI() + Z.getR());
-	     Z = Z.add(C);
-	     return Z;
-		case 21:
-	     Z = new Complex(Z.getR() * -1, Z.getI() * -1);
-	     Z = new Complex(Z.getR() + Math.abs(Z.getI()), Z.getI() + Math.abs(Z.getR())).add(C);
-	     return Z;
-		case 22:
-	     Z = new Complex( Z.getR()+Math.abs(Z.getI()) + C.getR(), Z.getI() - C.getI() + Z.getR() );
-	     return Z;
-		case 23:
-	     Z = Z.add(C);
-	     Z = new Complex(Z.getI(), Z.getR());
-	     return Z;
-		case 24:
-	     Complex c24 = new Complex(Math.sin(Z.getR()), Math.sin(Z.getI()));
-	     Z = Z.mult(c24);
-	     Z = Z.add(C);
-	     return Z;
-		case 25:
-	     Z = Z.mult(new Complex(Math.log(C.getR()), Math.log(C.getI())));
-	     Z = Z.mult(new Complex(Math.tan(Z.getR()), Math.cos(Z.getI())));
-	     Z = Z.add(C);
-	     return Z;
-		case 26:
-	      Z = new Complex(Z.getR() * -1, Z.getI() * -1);
-	      Z = Z.tan();
-	     Z = Z.div(C);
-	      Z = Z.add(Z.mult(new Complex(Z.getR() * Z.getI(), Z.getI() + Z.getR())));
-	      Z = new Complex(Z.getR() + Math.abs(Z.getI()), Z.getI() + Math.abs(Z.getR())).add(C);
-	     Z = Z.add(C);
-	     return Z;
-		case 27:
-		 Z = Z.tan();
-		 Z = Z.div(C);
-	     return Z;
-		}
-		//Virtually unreachable
-		return C_ZERO;
 	}
 	public static Color getColorFromIterations(int i) {
 		return new Color(i * 10 % 255, 0, 0);
@@ -567,27 +506,328 @@ public class FractalCalculator {
 				);
 				
 	}
+	
+	
+	public static void initializeFractals()
+	{
+		fractals.add(new Fractal("Mandelbrot Set") {
+			@Override
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Z = Z.mult(Z).add(C);
+				return Z;
+			}
+		});
+		fractals.add(new Fractal("Burning Ship") {
+			@Override
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Z = new Complex(Math.abs(Z.getR()), Math.abs(Z.getI()));
+		        Z = Z.mult(Z).add(C);
+		        return Z;
+			}
+		});
+		fractals.add(new Fractal("Scattercatt") {
+			@Override
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Z = Z.mult(C.log());
+		        Z = Z.mult(Z.tan());
+		        Z = Z.add(C);
+		        return Z;
+			}
+		});
+		fractals.add(new Fractal("Butterflies") {
+			@Override
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Z = Z.mult(Z);
+		        Z = Z.tan();
+		        Z = Z.sin();
+		        Z = Z.add(C);
+				return Z;
+			}
+		});
+		fractals.add(new Fractal("Tailing Set") {
+			@Override
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Z = Z.cosh();
+		        Z = Z.add(C);
+		        Z = Z.tan();
+		        Z = Z.div(C);
+		        Z = Z.log();
+				return Z;
+			}
+		});
+		fractals.add(new Fractal("Psuedobrot 1") {
+			@Override
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Z = Z.mult(Z.div(C.log())).add(new Complex(C.getR(), C.getI()));
+				return Z;
+			}
+		});
+		fractals.add(new Fractal("Warbled") {
+			@Override
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				 Z = new Complex(warbleDecimal(Z.getR()), warbleDecimal(Z.getI()));
+			     Z = Z.mult(Z).add(C);
+			     return Z;
+			}
+		});
+		
+		fractals.add(new Fractal("Lips") {
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Complex t = C.cosh();
+			     Z = new Complex(Z.getR() % t.getR(), Z.getI() % t.getI());
+			     Z = Z.mult(t.add(Z)).add(C);
+			     return Z;
+			}
+			
+		});
+		fractals.add(new Fractal("Claws") {
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Complex c8 = C.log();
+			    Z = new Complex(Z.getR() % c8.getR(), Z.getI() % c8.getI());
+			    Z = Z.mult(c8.add(Z)).add(C);
+			    return Z;
+			}
+			
+		});
+		fractals.add(new Fractal("Prism") {
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Z = new Complex(Z.getR() * -1, Z.getI() * -1);
+			     Z = new Complex(Z.getR() + Math.abs(Z.getI()), Z.getI() + Math.abs(Z.getR())).add(C);
+			     return Z;
+			}
+			
+		});
+
+		
+	}
+	
 	public static boolean verifyCurrentPalette()
 	{
 		return (selectedPalette < palettes.size()) ? true : false;
 	}
 	public static String getCurrentFractalName()
 	{
-		return fractalNames[selectedFractal];
+		return fractals.get(selectedFractal).getName();
+	}
+	public static String getCurrentBailoutName()
+	{
+		return bailoutNames[selectedBailout];
+	}
+	public static String getCurrentPaletteName()
+	{
+		return palettes.get(selectedPalette).getName();
+	}
+	public static int getPaletteArraySize()
+	{
+		return palettes.size();
+	}
+	public static Palette getCurrentPalette()
+	{
+		return palettes.get(selectedPalette);
+	}
+	public static int getFractalArraySize()
+	{
+		return fractals.size();
 	}
 
-	public static void setPaletteShiftMode(int x)
-	{
-		paletteShiftMode = x;
-	}
-	public static int getPaletteShiftMode()
-	{
-		return paletteShiftMode;
-	}
+	
+
 	
 	public static void setInSetCalculator(InSetCalculator isc)
 	{
 		selectedInSetCalculator = isc;
 	}
+	
+	public static Palette getPaletteAt(int n)
+	{
+		return palettes.get(n);
+	}
+	public static int getSelectedPalette()
+	{
+		return selectedPalette;
+	}
+	public static int getSelectedFractal()
+	{
+		return selectedFractal;
+	}
+	public static String getFractalName(int pos)
+	{
+		return fractals.get(pos).getName();
+	}
+	public static int getSelectedBailout()
+	{
+		return selectedBailout;
+	}
+	public static String getBailoutlName(int pos)
+	{
+		return bailoutNames[pos];
+	}
+	public static String[] getBailoutNameArray()
+	{
+		return bailoutNames;
+	}
+	public static int getMaxIterations()
+	{
+		return maxIterations;
+	}
+	public static int getModulusColorDivision()
+	{
+		return modulusColorDivisions;
+	}
+	public static boolean getColorWrapping()
+	{
+		return colorWrapping;
+	}
+	public static int getColorOffset()
+	{
+		return colorOffset;
+	}
+	public static int getPaletteShiftMode()
+	{
+		return paletteShiftMode;
+	}
+	public static double[] getCameraP1()
+	{
+		return cameraP1;
+	}
+	public static double[] getCameraP2()
+	{
+		return cameraP2;
+	}
+	public static double[] getJuliaCameraP1()
+	{
+		return juliaCameraP1;
+	}
+	public static double[] getJuliaCameraP2()
+	{
+		return juliaCameraP2;
+	}
+	public static int getRenderDetail()
+	{
+		return renderDetail;
+	}
+	public static boolean getColorInsidePixels()
+	{
+		return colorInsidePixels;
+	}
+	public static boolean getColorOutsidePixels()
+	{
+		return colorOutsidePixels;
+	}
+	public static ArrayList<Palette> getPaletteArray() 
+	{
+		return palettes;
+	}
+	
+	public static void setSelectedPalette(int n)
+	{
+		selectedPalette = n;
+	}
+	public static void setSelectedFractal(int n)
+	{
+		 selectedFractal = n;
+	}
+	public static void setFractalName(int pos, String s)
+	{
+		 fractalNames[pos] = s;
+	}
+	public static void setSelectedBailout(int n)
+	{
+		 selectedBailout = n;
+	}
+	public static void setBailoutlName(int pos, String s)
+	{
+		 bailoutNames[pos] = s;
+	}
+	public static void setMaxIterations(int n)
+	{
+		 maxIterations = n;
+	}
+	public static void setModulusColorDivision(int n)
+	{
+		 modulusColorDivisions = n;
+	}
+	public static void setColorWrapping(boolean b)
+	{
+		 colorWrapping = b;
+	}
+	public static void setColorOffset(int n)
+	{
+		 colorOffset = n;
+	}
+	public static void setPaletteShiftMode(int n)
+	{
+		 paletteShiftMode = n;
+	}
+	public static void setCameraP1(double[] pos)
+	{
+		 cameraP1[0] = pos[0];
+		 cameraP1[1] = pos[1];
+	}
+	public static void setCameraP2(double[] pos)
+	{
+		 cameraP2[0] = pos[0];
+		 cameraP2[1] = pos[1];
+	}
+	public static void setJuliaCameraP1(double[] pos)
+	{
+		 juliaCameraP1[0] = pos[0];
+		 juliaCameraP1[1] = pos[1];
+	}
+	public static void setJuliaCameraP2(double[] pos)
+	{
+		 juliaCameraP2[0] = pos[0];
+		 juliaCameraP2[1] = pos[1];
+	}
+	public static void setRenderDetail(int n)
+	{
+		 renderDetail = n;
+	}
+	public static void setColorInsidePixels(boolean b)
+	{
+		 colorInsidePixels = b;
+	}
+	public static void setColorOutsidePixels(boolean b)
+	{
+		 colorOutsidePixels = b;
+	}
+	
+	public static void addToSelectedPalette(int n)
+	{
+		selectedPalette += n;
+	}
+	public static void addToSelectedFractal(int n)
+	{
+		selectedFractal += n;
+	}
+	public static void addToSelectedBailout(int n)
+	{
+		selectedBailout += n;
+	}
+	public static void addToMaxIterations(int n)
+	{
+		maxIterations += n;
+	}
+	public static void addToModulusColorDivisions(int n)
+	{
+		modulusColorDivisions += n;
+	}
+	public static void addToColorOffset(int n)
+	{
+		colorOffset += n;
+	}
+
+	
+
 	
 }

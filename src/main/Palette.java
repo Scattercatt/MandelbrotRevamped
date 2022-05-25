@@ -5,7 +5,12 @@ import java.util.NoSuchElementException;
 import java.awt.Color;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Scanner;
+import java.util.Random;
 
 public class Palette
 {
@@ -27,7 +32,9 @@ public class Palette
 	String name;
 	ArrayList<Color> Colors = new ArrayList<Color>();
 	ArrayList<Float> positions = new ArrayList<Float>();
-  
+	
+	
+	private static Random random = new Random();
 	/**
 	 * 
 	 * @param name Name of palette
@@ -280,6 +287,37 @@ public class Palette
     for (int i = 0; i < al.size(); i++)  
       ret[i] = al.get(i);
     return ret;
+  }
+  /**
+   * Creates a random palette in the palettes.dat file
+   * @throws IOException 
+   * 
+   */
+  static void saveRandomPalette(File paletteFile) throws IOException
+  {
+	  /*
+	  FileWriter fw = new FileWriter(paletteFile);
+	  
+	  String palName = "Random_" + random.nextInt(1000000);
+	  
+	  final int COLOR_COUNT = 100;
+	  
+	  String colorDataString = "";
+	  
+	  for (int i = 0; i < COLOR_COUNT; i++)
+	  {
+		  final String COLOR_DATA_PREFIX = " > ";
+		  
+		  colorDataString += COLOR_DATA_PREFIX + String.format("%s,%s,%s", random.nextInt(256), random.nextInt(256), random.nextInt(256));
+	  }
+	  
+	  String formattedPaletteData = String.format("%s%s %% a", palName, colorDataString);
+	  
+	  System.out.println(formattedPaletteData);
+	  fw.append(formattedPaletteData);
+	  
+	  fw.close();
+	  */
   }
   
   /**
