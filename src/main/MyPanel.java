@@ -51,6 +51,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 	final int[] PREVIEW_PALETTE_SHIFT_WINDOWS_POSITION = new int[] {480, 360};
 	ArrayList<Color[][]> previewPaletteShiftWindows = new ArrayList<Color[][]>();
 	
+	private static boolean controlJuliaWindow = false;
+	
 	
 	private static String renderOutputPath = "";
 	
@@ -78,13 +80,20 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 	JButton btn_renderJuliaPreview;
 	JButton btn_confirmRenderImage;
 	JButton btn_confirmJuliaRenderImage;
+	
 	JRadioButton rbtn_1xQuality;
 	JRadioButton rbtn_2xQuality;
 	JRadioButton rbtn_4xQuality;
+	ButtonGroup bg_quality;
+	
 	JCheckBox cb_colorInsidePoints;
 	JCheckBox cb_colorOutsidePoints;
 	
-	ButtonGroup bg_quality;
+	JRadioButton rbtn_controlMain;
+	JRadioButton rbtn_controlJulia;
+	ButtonGroup bg_control;
+	
+	
 	JTextField tf_imageRenderSize;
 	JPanel southPanel;
 	
@@ -241,6 +250,30 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 			btn_confirmJuliaRenderImage.setEnabled(false);
 		}});
 		southPanelT.add(btn_confirmJuliaRenderImage);
+		
+		rbtn_controlMain = new JRadioButton("Control main");
+		rbtn_controlMain.setToolTipText("Enables the control of the main fractal");
+		rbtn_controlMain.setSelected(true);
+		rbtn_controlMain.setFocusable(false);
+		rbtn_controlMain.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {
+			controlJuliaWindow = false;
+		}});
+		
+
+		rbtn_controlJulia = new JRadioButton("Control julia");
+		rbtn_controlJulia.setToolTipText("Enables the control of the julia fractal");
+		rbtn_controlJulia.setSelected(false);
+		rbtn_controlJulia.setFocusable(false);
+		rbtn_controlJulia.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {
+			controlJuliaWindow = true;
+		}});
+		
+		bg_control = new ButtonGroup();
+		bg_control.add(rbtn_controlMain);
+		bg_control.add(rbtn_controlJulia);
+		
+		southPanelT.add(rbtn_controlMain);
+		southPanelT.add(rbtn_controlJulia);
 		
 		southPanel.add(southPanelT);
 		
@@ -496,10 +529,16 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		btn_confirmRenderImage.setEnabled(false);
 		btn_confirmJuliaRenderImage.setEnabled(false);
 		if (FractalCalculator.verifyCurrentPalette())
-
+		{
+			if (controlJuliaWindow)
+				IntStream.range(0, PREVIEW_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
+					FractalCalculator.calcFractalColumn(previewRenderWindow, i, true, juliaPoint.getR(), juliaPoint.getI(), -1);
+				});
+			else
 				IntStream.range(0, PREVIEW_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
 					FractalCalculator.calcFractalColumn(previewRenderWindow, i, false, 0, 0, -1);
 				});
+		}
 	}
 	public void renderLargeWindow()
 	{
@@ -600,8 +639,18 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 		
 		int keyCode = e.getKeyCode();
 		
-		double[] p1 = getP1();
-		double[] p2 = getP2();
+		double[] p1, p2;
+		
+		if (controlJuliaWindow)
+		{
+			p1 = getJP1();
+			p2 = getJP2();
+		}
+		else
+		{
+			p1 = getP1();
+			p2 = getP2();
+		}
 		
 		switch (keyCode)
 		{
@@ -930,5 +979,13 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 	private static double[] getP2()
 	{
 		return FractalCalculator.getCameraP2();
+	}
+	private static double[] getJP1()
+	{
+		return FractalCalculator.getJuliaCameraP1();
+	}
+	private static double[] getJP2()
+	{
+		return FractalCalculator.getJuliaCameraP2();
 	}
 }
