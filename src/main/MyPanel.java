@@ -125,6 +125,10 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 			previewPaletteShiftWindows.add(new Color[PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE][PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE]);
 		
 		
+		String x = System.getProperty("os.name");
+		System.out.println(x);
+		
+		DataHandler.initDataDir();
 		DataHandler.verifyFiles();
 		try {
 			DataHandler.read();

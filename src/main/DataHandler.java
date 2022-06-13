@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class DataHandler {
 	
-	private static String dataDir = "C:\\Users\\"+System.getProperty("user.name")+"\\Documents\\MandelbrotRevamped\\";
+	private static String dataDir;
 	
 	private static String pictureDir = "Render\\";
 	
@@ -15,6 +15,28 @@ public class DataHandler {
 	private static String paletteFileDir = "palettes.dat";
 	
 	private static final String[] DEFAULT_PALETTES = new String[] {"3_Color_(Alt) > 0,255,255 > 255,0,255 > 255,255,0 % a", "3_Color_(Basic) > 255,0,0 > 0,255,0 > 0,0,255 % a", "Sunny > 0,0,255 > 255,255,255 > 255,255,0 > 255,0,0 % a"};
+	
+	/*
+	 *  Function that initializes where the data will be stored based on the current OS.
+	 */
+	public static void initDataDir()
+	{
+		String os = System.getProperty("os.name");
+		
+		switch (os)
+		{
+		case "Windows 10":
+			dataDir = "C:\\Users\\"+System.getProperty("user.name")+"\\Documents\\MandelbrotRevamped\\";
+			break;
+		case "Linux":
+			dataDir = "\\home\\"+System.getProperty("user.name")+"\\.config\\";
+			break;
+		default:
+			dataDir = "C:\\Users\\"+System.getProperty("user.name")+"\\Documents\\MandelbrotRevamped\\";
+			break;
+		}
+		
+	}
 	
 	public static void write() throws IOException
 	{
