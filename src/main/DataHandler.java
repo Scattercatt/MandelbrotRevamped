@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class DataHandler {
 	
-	private static String dataDir;
+	private static String dataDir = "C:\\Users\\"+System.getProperty("user.name")+"\\Documents\\MandelbrotRevamped\\";
 	
 	private static String pictureDir = "Render\\";
 	
@@ -27,12 +27,11 @@ public class DataHandler {
 		{
 		case "Windows 10":
 			dataDir = "C:\\Users\\"+System.getProperty("user.name")+"\\Documents\\MandelbrotRevamped\\";
+			pictureDir = "Render\\";
 			break;
 		case "Linux":
-			dataDir = "\\home\\"+System.getProperty("user.name")+"\\.config\\";
-			break;
-		default:
-			dataDir = "C:\\Users\\"+System.getProperty("user.name")+"\\Documents\\MandelbrotRevamped\\";
+			dataDir = "/home/"+System.getProperty("user.name")+"/.config/MandelbrotRevamped/";
+			pictureDir = "Render/";
 			break;
 		}
 		
