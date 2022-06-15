@@ -13,6 +13,8 @@ Once you're in a spot you want to observe, you can click the **Render Preview** 
 
 To render a julia fractal, first render a preview into the top main window. Once completed, **Click** anywhere on the top window to automatically render the corresponding julia set of the point you clicked. Sometimes, you will want to change a palette, iterations, color division mark, or any other propety of the fractal without having to click on the exact spot again. To do this, click the **Julia Preview** button. 
 
+Remember that the main fractal and julia fractal are seperate "cameras". You can change which one you are controlling with the "Control main" and "Control julia" radio buttons. 
+
 If you want your images to have more detail, the radio buttons **1x 4x 16x** adjust this. 1x is the basic calculation method; just take every point in the window and iterate accordingly. 4x and 16x use subdividing and averaging, rendering a sharper, higher quality image. However, this comes at the cost of computation time. As the numbers imply, 4x is *4 times* and 16x is ***16 times*** as many pixels calulated, so it gets pretty slow pretty quick. 
 
 
