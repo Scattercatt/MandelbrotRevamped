@@ -9,8 +9,17 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 public class RenderProgressJPanel extends JPanel implements ActionListener {
 	
+	
+	/*
+	 * This class effectively runs the small window that displays information whenever a render is in progress. This calculates all the diagnostic values. 
+	 */
+	
 	private static final long serialVersionUID = 1L;
+	
+	//Max number of column representations. (Trust me, you don't need to render an image more than 50,000 x 50,000)
 	private static final int PROGRESS_STATES_SIZE = 50000;
+	
+	//Draw cords
 	private static final int[] PROGRESS_DISPLAY_POSTITION = new int[] {10,30};
 	
 	static byte[] progressStates = new byte[PROGRESS_STATES_SIZE];
@@ -21,11 +30,13 @@ public class RenderProgressJPanel extends JPanel implements ActionListener {
 
 	static float progressPercentage = 0;
 	static long ic = 0; //Iterations calculated
-	static long pc = 0;
-	static double atpi = 0.0; 
-	static boolean boolUpdateATPI = false;
+	static long pc = 0; //Pixels calculated
+	static double atpi = 0.0; //Average time per iteration
+	static double ips = 0.0; //Iterations per second
+	static boolean boolUpdateDiagnostics = false; //Controls whether or not ATPI is being updated.
 	
-	static long startNano;
+	//Time vars.
+	static long startNano; 
 	static long startMillis, endMillis, elapsedMillis;
 	
 	private static Timer frameTimer;
@@ -37,6 +48,7 @@ public class RenderProgressJPanel extends JPanel implements ActionListener {
 		frameTimer = new Timer(16, this);
 		frameTimer.start();
 		
+		//Initialize progressStates as "no job"
 		for (int i = 0; i < progressStates.length; i++)
 			progressStates[i] = 0;
 
@@ -46,9 +58,14 @@ public class RenderProgressJPanel extends JPanel implements ActionListener {
 	public void paint(Graphics g)
 	{
 		super.paint(g);
-		updateProgressPercent();
-		if (boolUpdateATPI)
+		
+		
+		if (boolUpdateDiagnostics)
+		{
 			updateATPI();
+			updateIPS();
+			updateProgressPercent();
+		}
 		this.setBackground(Color.BLACK);
 		
 		
@@ -75,6 +92,8 @@ public class RenderProgressJPanel extends JPanel implements ActionListener {
 		
 		
 		g2D.drawString(String.format("ATPI: %.2f", atpi), 160, 140);
+		
+		g2D.drawString(String.format("IPS: %.2fM", ips/1000000.0), 160, 155);
 		
 		for (int ix = 0, i = 0; ix < 500; ix++)
 		{
@@ -143,21 +162,26 @@ public class RenderProgressJPanel extends JPanel implements ActionListener {
 	}
 	private static void updateATPI()
 	{
-		if (progressPercentage < 100)
-			atpi = (double) (System.nanoTime() - startNano) / (double) ic;
+		atpi = (double) (System.nanoTime() - startNano) / (double) ic;
+	}
+	private static void updateIPS()
+	{
+		ips = (double) ic / (((double) System.currentTimeMillis() - (double) startMillis) / 1000.0);
 	}
 	
 	public static void startStopwatch()
 	{
-		boolUpdateATPI = true;
+		boolUpdateDiagnostics = true;
 		startNano = System.nanoTime();
 		startMillis = System.currentTimeMillis();
-		
 	}
 	public static void endStopwatch()
 	{
-		boolUpdateATPI = false;
+		boolUpdateDiagnostics = false;
 		endMillis = System.currentTimeMillis();
+		
+		//This is called here to make sure the window displays 100% when finished. 
+		updateProgressPercent();
 
 	}
 	public static void incIC()

@@ -128,6 +128,10 @@ public class FractalCalculator {
 		 
 	}
 	
+	/*
+	 * The main function driving fractal rendering. 
+	 * This is called "calcFractalColumn" because this program renders each of it's images one column at a time. Each column is offloaded to different threads. All this function can do is render one sliver of pixels in an entire image "id".
+	 */
 	public static void calcFractalColumn(Color[][] id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode)
 	{	
 		if (param_paletteShiftMode == -1)
@@ -139,6 +143,7 @@ public class FractalCalculator {
 		
 		double p1x, p1y, p2x, p2y;
 		
+		//If julia, use the julia camera. If not, use the main camera.
 		if (julia)
 		{
 			p1x = juliaCameraP1[0];
@@ -155,11 +160,17 @@ public class FractalCalculator {
 		}
 		
 		
-		double xval = (p2x - p1x) / id.length * column;
+		//xval represents what column of the render is being worked on in this function. Remember this function is used on multiple threads at a time. This is effectively converting the Integer "column" value to a usable value in terms of render
+		//For example, lets say the camera's position is (-0.5,0.2),(0,-0.3), and we're rendering column number 312 of an image of 5000x5000 size.
+		//In this example, the distance *mathematically* between the start of the camera and the end of the camera is 0.5 since if we take x2-x1 (0 - -0.5 = 0.5). But in an image of 5000x5000 size, we need to represent the 312th column in mathematical terms.
+		//We do this by calculating 312/5000 which gives us 0.0624. We multiply this number by the camera length to get the mathematical value 0.0312
+		//This is still not complete. The line after this one adds the x1 camera position as an anchor point. 
+		double xval = (double) column / (double) id.length * (p2x - p1x);
 		xval = xval + p1x;
 		
 		int iterations;
-
+		
+		//Here, iy represents the vertical position of the current renderer thread. This goes from the top to the bottom of the column, rendering each pixel as it goes. In the case of higher quality settings, each pixel is subdivided and averaged. 
 		for (double iy = p1y; jy < id.length; iy = iy + ((p2y - p1y) / id.length), jy++)
 		{
 			//renderDetail is by default 0, indicating that no subdividing & averaging of pixels dont happen
@@ -170,7 +181,8 @@ public class FractalCalculator {
 				
 				//This for loop in summary:
 				//Take the size of the current column. 
-				//Divide it into smaller pieces based on renderDetail				
+				//Divide it into smaller pieces based on renderDetail		
+				//(this is definitely the most complex nested for loop ive ever written)
 				for (double hdx = xval; 
 						hdx < xval + (p2x - p1x) / (double) id.length; 
 						hdx += (p2x - p1x) / (double) id.length / Math.pow(2, renderDetail))
@@ -294,6 +306,8 @@ public class FractalCalculator {
 		}
 		RenderProgressJPanel.setJob(column, (byte) 3);
 	}
+	
+	//This function is the same as the one above, but uses a BufferedImage instead of Color[][]. See previous function for comments. 
 	public static void calcFractalColumn(BufferedImage id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode)
 	{	
 		if (param_paletteShiftMode == -1)
@@ -332,10 +346,7 @@ public class FractalCalculator {
 			{
 				Color col;
 				ArrayList<Color> colors = new ArrayList<Color>();
-				
-				//This for loop in summary:
-				//Take the size of the current column. 
-				//Divide it into smaller pieces based on renderDetail				
+			
 				for (double hdx = xval; 
 						hdx < xval + (p2x - p1x) / (double) id.getWidth(); 
 						hdx += (p2x - p1x) / (double) id.getWidth()/ Math.pow(2, renderDetail))
@@ -471,6 +482,8 @@ public class FractalCalculator {
 		String t = x.toString();
 		return new BigDecimal(t);
 	}
+	@SuppressWarnings("unused")
+	
 	private static double getDecimal(double x)
 	{
 		return x % 1;
@@ -479,6 +492,7 @@ public class FractalCalculator {
 	{
 		return x * (x % 1 + 1);
 	}
+	//Gets the average of 2 colors.
 	public static Color averageColors(Color a, Color b)
 	{
 		return new Color(
@@ -489,6 +503,8 @@ public class FractalCalculator {
 		
 		
 	}
+	
+	//Gets the average of all the colors in an array. Primarily used in subdivision->averaging
 	public static Color averageColorArray(ArrayList<Color> colors)
 	{
 		int sumReds = 0, sumGreens = 0, sumBlues = 0; 
@@ -507,7 +523,7 @@ public class FractalCalculator {
 				
 	}
 	
-	
+	//These are all the currently usable fractals
 	public static void initializeFractals()
 	{
 		fractals.add(new Fractal("Mandelbrot Set") {

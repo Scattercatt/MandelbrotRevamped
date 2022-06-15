@@ -60,6 +60,10 @@ public class Driver {
 		return viewMenu;
 		
 	}
+	
+	/*
+	 * This function creates the file dropdown menu at the top page. This has to be in Driver.java because JMenusu must be on a JFrame and not a JPanel
+	 */
 	private static JMenu create_fileMenu() {
 		JMenu fileMenu = new JMenu("File");
 		
@@ -101,6 +105,9 @@ public class Driver {
 		return fileMenu;
 		
 	}
+	/*
+	 * Edit JMenu creation
+	 */
 	private static JMenu create_editMenu() {
 		JMenu editMenu = new JMenu("Edit");
 		
