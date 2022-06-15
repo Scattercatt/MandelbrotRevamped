@@ -35,6 +35,9 @@ These are seperate variables because they do not always correlate directly.
 ###### Average time per iteration (ATPI) 
 The time in nanoseconds each iteration takes to calculate on average. The lower the variable is, the better. 
 
+###### Iterations per second (IPS)
+The amount of iterations on average calculated per second.
+
 ###### The block of colors in the middle
 Every time a fractal is rendered, it marks every column of the render as a "job" to be calculated. 
 This grid of pixels represents complete, incomplete, active, and unassigned jobs for the render.
