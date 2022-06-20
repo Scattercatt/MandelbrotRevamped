@@ -99,10 +99,11 @@ public class RenderProgressJPanel extends JPanel implements ActionListener {
 		g2D.drawLine(0, 160, this.getWidth(), 160);
 		
 		g2D.drawString(String.format("FRACTAL    : %s", FractalCalculator.getSelectedFractal().getName()), 10, 175);
-		g2D.drawString(String.format("BAILOUT    : todo"), 10, 190);
+		g2D.drawString(String.format("BAILOUT    : %s", FractalCalculator.getSelectedBailout().getName()), 10, 190);
 		g2D.drawString(String.format("PALETTE    : %s", FractalCalculator.getSelectedPalette().getName()), 10, 205);
-		g2D.drawString(String.format("ITERATIONS : %d", FractalCalculator.getMaxIterations()), 10, 220);
-		g2D.drawString(String.format("IMSIZE     : %d", MainPanel.getRenderImageSize()), 10, 235);
+		g2D.drawString(String.format("ISC        : %s", FractalCalculator.getSelectedISC().getName()), 10, 220);
+		g2D.drawString(String.format("ITERATIONS : %d", FractalCalculator.getMaxIterations()), 180, 175);
+		g2D.drawString(String.format("IMSIZE     : %d", MainPanel.getRenderImageSize()), 180, 190);
 		
 		int renderDetailRepresentation = (int) Math.round(Math.pow(2, FractalCalculator.getRenderDetail()) * Math.pow(2, FractalCalculator.getRenderDetail()));
 		g2D.drawString(String.format("DETAIL LVL : %dx", renderDetailRepresentation), 10, 250);

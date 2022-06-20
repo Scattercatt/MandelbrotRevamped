@@ -813,6 +813,10 @@ public class FractalCalculator {
 	{
 		return selectedBailout;
 	}
+	public static InSetCalculator getSelectedISC()
+	{
+		return selectedISC;
+	}
 	
 	public static int getMaxIterations()
 	{
