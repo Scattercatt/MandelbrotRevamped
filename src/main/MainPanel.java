@@ -113,13 +113,9 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 	
 	MainPanel()
 	{
-		//Initializing InSetCalclators 
-		InSetCalculator.initializeList();
-		FractalCalculator.setInSetCalculator(InSetCalculator.getList().get(0));
 		
-		//Initializing fractals
-		FractalCalculator.initializeFractals();
-		FractalCalculator.initializeBailouts();
+		//Initializing fractals/bailouts/etc
+		FractalCalculator.initializeAll();
 		
 		//Initializing preview palette shift windows
 		for (int i = 0; i < 5; i++)
@@ -841,6 +837,26 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 		gbc.gridx = 1;
 		gbc.gridy = 2;
 		eastPanelNorth.add(jcb_bailoutList, gbc);
+		
+		//ISC dropdown
+				JLabel jl_ISCList = new JLabel("ISCs:");
+				gbc.gridx = 0;
+				gbc.gridy = 3;
+				eastPanelNorth.add(jl_ISCList, gbc);
+				
+				String[] ISCNames = FractalCalculator.getAllISCNames();
+				JComboBox jcb_ISCList = new JComboBox(ISCNames);
+				
+				jcb_ISCList.setSelectedIndex(0);
+				jcb_ISCList.setFocusable(false);
+				jcb_ISCList.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {
+					FractalCalculator.setSelectedISC(FractalCalculator.getISCArray().get(jcb_ISCList.getSelectedIndex()));
+					renderFinderWindow();
+				}});
+				
+				gbc.gridx = 1;
+				gbc.gridy = 3;
+				eastPanelNorth.add(jcb_ISCList, gbc);
 
 		/*
 		btn_incOffset = new JButton("/\\");

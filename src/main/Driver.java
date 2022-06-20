@@ -240,20 +240,6 @@ public class Driver {
 		setPaletteShiftModeMenu.add(psmo_BGR);
 		editMenu.add(setPaletteShiftModeMenu);
 		
-		JMenu setInSetCalculator = new JMenu("In-set Calculator");
-		ArrayList<JRadioButtonMenuItem> iscRadioButtons = new ArrayList<JRadioButtonMenuItem>();
-		ButtonGroup iscGroup = new ButtonGroup();
-		
-		for (int i = 0; i < InSetCalculator.getList().size(); i++)
-		{
-			//Stupid variable name. In Set Calculator J Radio Button Menu Item. temp varible
-			JRadioButtonMenuItem iscjrbmi = new JRadioButtonMenuItem(InSetCalculator.getList().get(i).getName());
-			iscjrbmi.setSelected(i == 0);
-			iscjrbmi.addActionListener(new ISCActionListener(InSetCalculator.getList().get(i)));
-			iscGroup.add(iscjrbmi);
-			setInSetCalculator.add(iscjrbmi);
-		}
-		
 		/*
 		JRadioButtonMenuItem isc_averageDistance = new JRadioButtonMenuItem("Average Distance");
 		JRadioButtonMenuItem isc_firstLastDistance = new JRadioButtonMenuItem("First-Last Distance");
@@ -273,7 +259,6 @@ public class Driver {
 		setInSetCalculator.add(isc_firstLastDistance);
 		setInSetCalculator.add(isc_longestDistance);
 		*/
-		editMenu.add(setInSetCalculator);
 		
 		return editMenu;
 	

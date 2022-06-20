@@ -12,7 +12,7 @@ public class InSetCalculator {
 	
 	//This static list is all of the different methods i've come up with.
 	//This list along with the ISCActionListener class is built in a way to allow for any amount of InSetCalculators (ISCs) to be made with ease.
-	private static ArrayList<InSetCalculator> iscList = new ArrayList<InSetCalculator>();
+	
 	
 	//Name of the ISC. Required for the menu options
 	String name;
@@ -105,79 +105,10 @@ public class InSetCalculator {
 		}
 		return longestPos;
 	}
-	
-	/**
-	 * 
-	 * @return ArrayList of ISCs 
-	 */
-	public static ArrayList<InSetCalculator> getList()
-	{
-		return iscList;
-	}
+
 	
 	/**
 	 * Initializes all of the pre-written ISCs. To create more, go here!
 	 */
-	public static void initializeList()
-	{
-		iscList.add(new InSetCalculator("Average Distance")
-		{
-			@Override
-			public int calculateVariable(ArrayList<Complex> c)
-			{
-				double sum = 0.0;
-				for (int i = 0; i < c.size() - 1; i++)
-				{
-					sum += distance(c, i, i+1);
-				}
-				return (int) Math.round(sum / (double) c.size() * 1000.0);
-			}
-			@Override
-			public int calculateMax(ArrayList<Complex> c)
-			{
-				return 100;
-			}
-		
-		});
-		iscList.add(new InSetCalculator("First Last Distance")		
-		{
-			@Override
-			public int calculateVariable(ArrayList<Complex> c)
-			{
-				return (int) Math.round(distance(c, 0, c.size()-1) * 1000.0);
-			}
-			@Override
-			public int calculateMax(ArrayList<Complex> c)
-			{
-				return 100;
-			}
-		});
-		iscList.add(new InSetCalculator("Longest distance")		
-		{
-			@Override
-			public int calculateVariable(ArrayList<Complex> c)
-			{
-				return getLongestPosition(c);
-			}
-			@Override
-			public int calculateMax(ArrayList<Complex> c)
-			{
-				return c.size();
-			}
-		});
-		iscList.add(new InSetCalculator("Test")
-		{
-			@Override
-			public int calculateVariable(ArrayList<Complex> c)
-			{
-				return (int) Math.round(distance(c, 0, c.size()-1) * (1000.0*c.size()));
-			}
-			@Override
-			public int calculateMax(ArrayList<Complex> c)
-			{
-				return 1000*c.size();
-			}
-		
-		});
-	}
+	
 }

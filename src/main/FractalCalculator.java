@@ -33,7 +33,9 @@ public class FractalCalculator {
 	
 	private static Bailout selectedBailout = null;
 	
+	private static ArrayList<InSetCalculator> ISCs = new ArrayList<InSetCalculator>();
 	
+	private static InSetCalculator selectedISC = null;
 	
 	
 	//The maximum number of iterations the program will calculate. 
@@ -91,12 +93,6 @@ public class FractalCalculator {
 	//Determines whether pixels calculated to be outside of the set are colored.
 	private static boolean colorOutsidePixels = true;
 	
-	
-	
-	
-
-
-	private static InSetCalculator selectedInSetCalculator = null;
 
 	
 	
@@ -200,8 +196,8 @@ public class FractalCalculator {
 						if (iterations == maxIterations)
 							if (colorInsidePixels)
 							{
-								int variableNum = selectedInSetCalculator.calculateVariable(points);
-								int maxNum = selectedInSetCalculator.calculateMax(points);
+								int variableNum = selectedISC.calculateVariable(points);
+								int maxNum = selectedISC.calculateMax(points);
 								colors.add(selectedPalette.calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
 								
 							}
@@ -258,8 +254,8 @@ public class FractalCalculator {
 				if (iterations == maxIterations)
 					if (colorInsidePixels)
 					{
-						int variableNum = selectedInSetCalculator.calculateVariable(points);
-						int maxNum = selectedInSetCalculator.calculateMax(points);
+						int variableNum = selectedISC.calculateVariable(points);
+						int maxNum = selectedISC.calculateMax(points);
 						id[column][jy] = selectedPalette.calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
 						
 					}	
@@ -364,8 +360,8 @@ public class FractalCalculator {
 						if (iterations == maxIterations)
 							if (colorInsidePixels)
 							{
-								int variableNum = selectedInSetCalculator.calculateVariable(points);
-								int maxNum = selectedInSetCalculator.calculateMax(points);
+								int variableNum = selectedISC.calculateVariable(points);
+								int maxNum = selectedISC.calculateMax(points);
 								colors.add(selectedPalette.calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
 							}	
 							else
@@ -425,8 +421,8 @@ public class FractalCalculator {
 				if (iterations == maxIterations)
 					if (colorInsidePixels)
 					{
-						int variableNum = selectedInSetCalculator.calculateVariable(points);
-						int maxNum = selectedInSetCalculator.calculateMax(points);
+						int variableNum = selectedISC.calculateVariable(points);
+						int maxNum = selectedISC.calculateMax(points);
 						col = selectedPalette.calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
 						
 					}	
@@ -492,6 +488,13 @@ public class FractalCalculator {
 					(int) Math.round(Math.sqrt((double)sumBlues / (double)colors.size()))
 				);
 				
+	}
+	
+	public static void initializeAll()
+	{
+		initializeFractals();
+		initializeBailouts();
+		initializeISCs();
 	}
 	
 	//These are all the currently usable fractals
@@ -655,6 +658,72 @@ public class FractalCalculator {
 			}
 		});
 	}
+	public static void initializeISCs()
+	{
+		ISCs.add(new InSetCalculator("Average Distance")
+		{
+			@Override
+			public int calculateVariable(ArrayList<Complex> c)
+			{
+				double sum = 0.0;
+				for (int i = 0; i < c.size() - 1; i++)
+				{
+					sum += distance(c, i, i+1);
+				}
+				return (int) Math.round(sum / (double) c.size() * 1000.0);
+			}
+			@Override
+			public int calculateMax(ArrayList<Complex> c)
+			{
+				return 100;
+			}
+		
+		});
+		
+		//Default ISC is Average Distance
+		selectedISC = ISCs.get(0);
+		
+		ISCs.add(new InSetCalculator("First Last Distance")		
+		{
+			@Override
+			public int calculateVariable(ArrayList<Complex> c)
+			{
+				return (int) Math.round(distance(c, 0, c.size()-1) * 1000.0);
+			}
+			@Override
+			public int calculateMax(ArrayList<Complex> c)
+			{
+				return 100;
+			}
+		});
+		ISCs.add(new InSetCalculator("Longest distance")		
+		{
+			@Override
+			public int calculateVariable(ArrayList<Complex> c)
+			{
+				return getLongestPosition(c);
+			}
+			@Override
+			public int calculateMax(ArrayList<Complex> c)
+			{
+				return c.size();
+			}
+		});
+		ISCs.add(new InSetCalculator("Test")
+		{
+			@Override
+			public int calculateVariable(ArrayList<Complex> c)
+			{
+				return (int) Math.round(distance(c, 0, c.size()-1) * (1000.0*c.size()));
+			}
+			@Override
+			public int calculateMax(ArrayList<Complex> c)
+			{
+				return 1000*c.size();
+			}
+		
+		});
+	}
 	
 	public static String getCurrentFractalName()
 	{
@@ -686,6 +755,15 @@ public class FractalCalculator {
 		
 		return ret;
 	}
+	public static String[] getAllISCNames()
+	{
+		String[] ret = new String[ISCs.size()];
+		
+		for (int i = 0; i < ret.length; i++)
+			ret[i] = ISCs.get(i).getName();
+		
+		return ret;
+	}
 	public static ArrayList<Fractal> getFractalArray()
 	{
 		return fractals;
@@ -697,6 +775,10 @@ public class FractalCalculator {
 	public static ArrayList<Bailout> getBailoutArray()
 	{
 		return bailouts;
+	}
+	public static ArrayList<InSetCalculator> getISCArray()
+	{
+		return ISCs;
 	}
 	public static String getCurrentPaletteName()
 	{
@@ -713,14 +795,6 @@ public class FractalCalculator {
 	public static int getFractalArraySize()
 	{
 		return fractals.size();
-	}
-
-	
-
-	
-	public static void setInSetCalculator(InSetCalculator isc)
-	{
-		selectedInSetCalculator = isc;
 	}
 	
 	public static Palette getPaletteAt(int n)
@@ -802,7 +876,10 @@ public class FractalCalculator {
 	{
 		 selectedBailout = b;
 	}
-	
+	public static void setSelectedISC(InSetCalculator i) 
+	{
+		selectedISC = i;
+	}
 	public static void setMaxIterations(int n)
 	{
 		 maxIterations = n;
@@ -868,6 +945,8 @@ public class FractalCalculator {
 	{
 		colorOffset += n;
 	}
+
+	
 
 	
 
