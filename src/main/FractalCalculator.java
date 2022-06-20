@@ -132,7 +132,7 @@ public class FractalCalculator {
 	 * The main function driving fractal rendering. 
 	 * This is called "calcFractalColumn" because this program renders each of it's images one column at a time. Each column is offloaded to different threads. All this function can do is render one sliver of pixels in an entire image "id".
 	 */
-	public static void calcFractalColumn(Color[][] id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode)
+	public static synchronized void calcFractalColumn(Color[][] id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode)
 	{	
 		if (param_paletteShiftMode == -1)
 			param_paletteShiftMode = paletteShiftMode;
@@ -222,7 +222,6 @@ public class FractalCalculator {
 							
 							iterations++;
 							RenderProgressJPanel.incIC();
-							//totalIterationsCalculated++;
 						}
 						//System.out.println(column+","+iy+". "+iterations+". ["+column+","+jy+"]");	
 						
@@ -308,7 +307,7 @@ public class FractalCalculator {
 	}
 	
 	//This function is the same as the one above, but uses a BufferedImage instead of Color[][]. See previous function for comments. 
-	public static void calcFractalColumn(BufferedImage id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode)
+	public static synchronized void calcFractalColumn(BufferedImage id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode)
 	{	
 		if (param_paletteShiftMode == -1)
 			param_paletteShiftMode = paletteShiftMode;
