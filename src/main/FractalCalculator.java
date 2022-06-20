@@ -600,8 +600,6 @@ public class FractalCalculator {
 			}
 			
 		});
-
-		
 	}
 	public static void initializeBailouts()
 	{
@@ -643,6 +641,15 @@ public class FractalCalculator {
 			public boolean escaped(Complex Z)
 			{
 				if (Z.getR() > 0.3 && Z.getI() > 0.3)
+				     return true;
+				return false;
+			}
+		});
+		bailouts.add(new Bailout("RminusI>5") {
+			@Override
+			public boolean escaped(Complex Z)
+			{
+				if (Z.getR() - Z.getI() > 5)
 				     return true;
 				return false;
 			}
