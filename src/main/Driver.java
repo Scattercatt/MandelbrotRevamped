@@ -20,7 +20,7 @@ public class Driver {
 		
 		JFrame f = new JFrame("Mandelbrot Revamped 2.0");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		MyPanel mp = new MyPanel();
+		MainPanel mp = new MainPanel();
 		
 		f.add(mp);
 		f.addKeyListener(mp);
@@ -52,7 +52,7 @@ public class Driver {
 		JCheckBoxMenuItem previewPaletteShifts = new JCheckBoxMenuItem("Preview palette shifts");
 		previewPaletteShifts.setSelected(false);
 		previewPaletteShifts.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			MyPanel.setPreviewPaletteShifts(!MyPanel.getPreviewPaletteShifts());
+			MainPanel.setPreviewPaletteShifts(!MainPanel.getPreviewPaletteShifts());
 		}});
 		viewMenu.add(previewPaletteShifts);
 		
@@ -73,7 +73,7 @@ public class Driver {
 			
 			prompt_setOutput.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			JTextField field = new JTextField();
-			field.setText(MyPanel.getRenderOutputPath());
+			field.setText(MainPanel.getRenderOutputPath());
 			prompt_setOutput.add(field);
 			
 			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -87,7 +87,7 @@ public class Driver {
 			field.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
 				if (new File(field.getText()).isDirectory())
 				{
-					MyPanel.setRenderOutputPath(field.getText());
+					MainPanel.setRenderOutputPath(field.getText());
 					try {
 						DataHandler.write();
 					} catch (IOException e1) {
@@ -167,7 +167,7 @@ public class Driver {
 			
 			prompt_setOutput.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			JTextField field = new JTextField();
-			field.setText(String.format("%d",MyPanel.getRenderImageSize()));
+			field.setText(String.format("%d",MainPanel.getRenderImageSize()));
 			prompt_setOutput.add(field);
 			
 			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -179,7 +179,7 @@ public class Driver {
 			prompt_setOutput.setResizable(false);
 			
 			field.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-				MyPanel.setRenderImageSize(Integer.parseInt(field.getText()));
+				MainPanel.setRenderImageSize(Integer.parseInt(field.getText()));
 				prompt_setOutput.dispose();
 			}});
 			

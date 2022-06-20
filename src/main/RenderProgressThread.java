@@ -23,7 +23,7 @@ public class RenderProgressThread implements Runnable {
 		rp_mainPanel = new RenderProgressJPanel();
 		renderProgressFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		renderProgressFrame.setResizable(false);
-		renderProgressFrame.setBounds(userMonitorWidth/2, userMonitorHeight/2, 535, 200);
+		renderProgressFrame.setBounds(userMonitorWidth/2, userMonitorHeight/2, 535, 300);
 		renderProgressFrame.add(rp_mainPanel);
 		
 		while(true)

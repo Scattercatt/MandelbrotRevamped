@@ -40,7 +40,7 @@ public class DataHandler {
 	public static void write() throws IOException
 	{
 		FileWriter fw = new FileWriter(dataDir+dataFileDir);
-		fw.write(MyPanel.getRenderOutputPath());
+		fw.write(MainPanel.getRenderOutputPath());
 		
 		
 		fw.close();
@@ -56,7 +56,7 @@ public class DataHandler {
 		
 		Palette.saveRandomPalette(pf);
 		
-		MyPanel.setRenderOutputPath(sc.nextLine());
+		MainPanel.setRenderOutputPath(sc.nextLine());
 		
 		sc.close();
 	}
@@ -96,6 +96,8 @@ public class DataHandler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
 	}
 	
 	public static String getDataDir()

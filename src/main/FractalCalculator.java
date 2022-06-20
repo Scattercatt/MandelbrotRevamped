@@ -22,22 +22,18 @@ public class FractalCalculator {
 	
 	//This is the list of palettes available to the user. This is filled on startup by the palettes.dat file.
 	private static ArrayList<Palette> palettes = new ArrayList<Palette>();
-	
-	//Points to the palette currently being used.
-	private static int selectedPalette = 0;
+
+	private static Palette selectedPalette = null;
 	
 	private static ArrayList<Fractal> fractals = new ArrayList<Fractal>();
+
+	private static Fractal selectedFractal = null;
 	
-	//Points to the fractal being used. 
-	private static int selectedFractal = 0;
-	//Names of fractals based on value.
-	private static String[] fractalNames = new String[] {"Mandelbrot Set", "Burning Ship", "Scattercattt", "Butterflies", "Tailing", 
-			"Psudobrot 1", "Warbled", "Lips", "Claws", "Mandelbrot_D", "J-Star", "Grid", "12", "13", "14", "15", "16", "17", "18", "J-Web", "Manta", "Prism", "22", "23", "24", "25", "26", "27J"};
+	private static ArrayList<Bailout> bailouts = new ArrayList<Bailout>();
 	
-	//Points to the bailout method being used.
-	private static int selectedBailout = 0;
-	//Names of bailout methods.
-	private static String[] bailoutNames = new String[] {"Basic", "Follicle", "Jungle", "Amazon"};
+	private static Bailout selectedBailout = null;
+	
+	
 	
 	
 	//The maximum number of iterations the program will calculate. 
@@ -102,31 +98,7 @@ public class FractalCalculator {
 
 	private static InSetCalculator selectedInSetCalculator = null;
 
-	private static boolean calcBailout(Complex Z)
-	{
-		switch (selectedBailout)
-		{
-		     case 0:
-		       if (Z.mod() > 4)
-		         return true;
-		       break;
-		     case 1:
-		       if (Z.getR() * Z.getI() > 1000)
-		         return true;
-		       break;
-		     case 2:
-		       if (Z.getR() * Z.getI() > Z.getI() * Z.getI())
-		    	 return true;
-		     case 3:
-		       if (Z.getR() > 0.3 && Z.getI() > 0.3)
-			     return true;
-		     default:
-		    	 return false;
-		}
-		return false;
-		
-		 
-	}
+	
 	
 	/*
 	 * The main function driving fractal rendering. 
@@ -211,11 +183,11 @@ public class FractalCalculator {
 						if (colorInsidePixels)
 							points.add(c);
 			
-						while (!calcBailout(z) && iterations < maxIterations) 
+						while (!selectedBailout.escaped(z) && iterations < maxIterations) 
 						{
 							
 							//z = ZIterative(z, c);
-							z = fractals.get(selectedFractal).ZIterative(z, c);
+							z = selectedFractal.ZIterative(z, c);
 							
 							if (colorInsidePixels)
 								points.add(z);
@@ -230,14 +202,14 @@ public class FractalCalculator {
 							{
 								int variableNum = selectedInSetCalculator.calculateVariable(points);
 								int maxNum = selectedInSetCalculator.calculateMax(points);
-								colors.add(palettes.get(selectedPalette).calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
+								colors.add(selectedPalette.calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
 								
 							}
 							else
 								colors.add(Color.BLACK);
 						else
 							if (colorOutsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
+								colors.add(selectedPalette.calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
 							else
 								colors.add(Color.BLACK);
 						
@@ -270,10 +242,10 @@ public class FractalCalculator {
 				if (colorInsidePixels)
 					points.add(c);
 				
-				while (!calcBailout(z) && iterations < maxIterations) 
+				while (!selectedBailout.escaped(z) && iterations < maxIterations) 
 				{
 					//z = ZIterative(z, c);
-					z = fractals.get(selectedFractal).ZIterative(z, c);
+					z = selectedFractal.ZIterative(z, c);
 					
 					if (colorInsidePixels)
 						points.add(z);
@@ -288,14 +260,14 @@ public class FractalCalculator {
 					{
 						int variableNum = selectedInSetCalculator.calculateVariable(points);
 						int maxNum = selectedInSetCalculator.calculateMax(points);
-						id[column][jy] = palettes.get(selectedPalette).calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
+						id[column][jy] = selectedPalette.calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
 						
 					}	
 					else
 						id[column][jy] = Color.BLACK;
 				else
 					if (colorOutsidePixels)
-						id[column][jy] = palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
+						id[column][jy] = selectedPalette.calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
 					else
 						id[column][jy] = Color.BLACK;
 
@@ -374,11 +346,11 @@ public class FractalCalculator {
 						if (colorInsidePixels)
 							points.add(c);
 			
-						while (!calcBailout(z) && iterations < maxIterations) // x*x + y*y < 4
+						while (!selectedBailout.escaped(z) && iterations < maxIterations) // x*x + y*y < 4
 						{
 							
 							//z = ZIterative(z, c);
-							z = fractals.get(selectedFractal).ZIterative(z, c);
+							z = selectedFractal.ZIterative(z, c);
 
 							if (colorInsidePixels)
 								points.add(z);
@@ -394,13 +366,13 @@ public class FractalCalculator {
 							{
 								int variableNum = selectedInSetCalculator.calculateVariable(points);
 								int maxNum = selectedInSetCalculator.calculateMax(points);
-								colors.add(palettes.get(selectedPalette).calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
+								colors.add(selectedPalette.calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
 							}	
 							else
 								colors.add(Color.BLACK);
 						else
 							if (colorOutsidePixels)
-								colors.add(palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
+								colors.add(selectedPalette.calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode));
 							else
 								colors.add(Color.BLACK);
 						
@@ -437,11 +409,11 @@ public class FractalCalculator {
 				if (colorInsidePixels)
 					points.add(c);
 				
-				while (!calcBailout(z) && iterations < maxIterations) 
+				while (!selectedBailout.escaped(z) && iterations < maxIterations) 
 				{
 					
 					//z = ZIterative(z, c);
-					z = fractals.get(selectedFractal).ZIterative(z, c);
+					z = selectedFractal.ZIterative(z, c);
 					
 					if (colorInsidePixels)
 						points.add(z);
@@ -455,14 +427,14 @@ public class FractalCalculator {
 					{
 						int variableNum = selectedInSetCalculator.calculateVariable(points);
 						int maxNum = selectedInSetCalculator.calculateMax(points);
-						col = palettes.get(selectedPalette).calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
+						col = selectedPalette.calculate(variableNum, maxNum, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
 						
 					}	
 					else
 						col = Color.BLACK;
 				else
 					if (colorOutsidePixels)
-						col = palettes.get(selectedPalette).calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
+						col = selectedPalette.calculate(iterations, maxIterations, colorWrapping, modulusColorDivisions, colorOffset, param_paletteShiftMode);
 					else
 						col = Color.BLACK;
 				id.setRGB(column, jy, col.getRGB());
@@ -525,6 +497,7 @@ public class FractalCalculator {
 	//These are all the currently usable fractals
 	public static void initializeFractals()
 	{
+		
 		fractals.add(new Fractal("Mandelbrot Set") {
 			@Override
 			public Complex ZIterative(Complex Z, Complex C)
@@ -533,6 +506,11 @@ public class FractalCalculator {
 				return Z;
 			}
 		});
+		
+		//Default fractal is Mandelbrot Set
+		selectedFractal = fractals.get(0);
+		
+		
 		fractals.add(new Fractal("Burning Ship") {
 			@Override
 			public Complex ZIterative(Complex Z, Complex C)
@@ -625,22 +603,97 @@ public class FractalCalculator {
 
 		
 	}
-	
-	public static boolean verifyCurrentPalette()
+	public static void initializeBailouts()
 	{
-		return (selectedPalette < palettes.size()) ? true : false;
+		
+		bailouts.add(new Bailout("Basic") {
+			@Override
+			public boolean escaped(Complex Z)
+			{
+				if (Z.mod() > 4)
+			         return true;
+				return false;
+			}
+		});
+		
+		//Default bailout is basic
+		selectedBailout = bailouts.get(0);
+		
+		
+		bailouts.add(new Bailout("Follicle") {
+			@Override
+			public boolean escaped(Complex Z)
+			{
+				if (Z.getR() * Z.getI() > 1000)
+			         return true;
+				return false;
+			}
+		});
+		bailouts.add(new Bailout("Jungle") {
+			@Override
+			public boolean escaped(Complex Z)
+			{
+				if (Z.getR() * Z.getI() > Z.getI() * Z.getI())
+			    	 return true;
+				return false;
+			}
+		});
+		bailouts.add(new Bailout("Amazon") {
+			@Override
+			public boolean escaped(Complex Z)
+			{
+				if (Z.getR() > 0.3 && Z.getI() > 0.3)
+				     return true;
+				return false;
+			}
+		});
 	}
+	
 	public static String getCurrentFractalName()
 	{
-		return fractals.get(selectedFractal).getName();
+		return selectedFractal.getName();
 	}
-	public static String getCurrentBailoutName()
+	public static String[] getAllFractalNames()
 	{
-		return bailoutNames[selectedBailout];
+		String[] ret = new String[fractals.size()];
+		
+		for (int i = 0; i < ret.length; i++)
+			ret[i] = fractals.get(i).getName();
+		
+		return ret;
+	}
+	public static String[] getAllPaletteNames() {
+		String[] ret = new String[palettes.size()];
+		
+		for (int i = 0; i < ret.length; i++)
+			ret[i] = palettes.get(i).getName();
+		
+		return ret;
+	}
+	public static String[] getAllBailoutNames()
+	{
+		String[] ret = new String[bailouts.size()];
+		
+		for (int i = 0; i < ret.length; i++)
+			ret[i] = bailouts.get(i).getName();
+		
+		return ret;
+	}
+	public static ArrayList<Fractal> getFractalArray()
+	{
+		return fractals;
+	}
+	public static ArrayList<Palette> getPaletteArray() 
+	{
+		return palettes;
+	}
+	public static ArrayList<Bailout> getBailoutArray()
+	{
+		return bailouts;
 	}
 	public static String getCurrentPaletteName()
 	{
-		return palettes.get(selectedPalette).getName();
+		return selectedPalette.getName();
 	}
 	public static int getPaletteArraySize()
 	{
@@ -648,7 +701,7 @@ public class FractalCalculator {
 	}
 	public static Palette getCurrentPalette()
 	{
-		return palettes.get(selectedPalette);
+		return selectedPalette;
 	}
 	public static int getFractalArraySize()
 	{
@@ -667,30 +720,19 @@ public class FractalCalculator {
 	{
 		return palettes.get(n);
 	}
-	public static int getSelectedPalette()
+	public static Palette getSelectedPalette()
 	{
 		return selectedPalette;
 	}
-	public static int getSelectedFractal()
+	public static Fractal getSelectedFractal()
 	{
 		return selectedFractal;
 	}
-	public static String getFractalName(int pos)
-	{
-		return fractals.get(pos).getName();
-	}
-	public static int getSelectedBailout()
+	public static Bailout getSelectedBailout()
 	{
 		return selectedBailout;
 	}
-	public static String getBailoutlName(int pos)
-	{
-		return bailoutNames[pos];
-	}
-	public static String[] getBailoutNameArray()
-	{
-		return bailoutNames;
-	}
+	
 	public static int getMaxIterations()
 	{
 		return maxIterations;
@@ -739,31 +781,21 @@ public class FractalCalculator {
 	{
 		return colorOutsidePixels;
 	}
-	public static ArrayList<Palette> getPaletteArray() 
+	
+	
+	public static void setSelectedFractal(Fractal f)
 	{
-		return palettes;
+		 selectedFractal = f;
+	}
+	public static void setSelectedPalette(Palette p)
+	{
+		selectedPalette = p;
+	}
+	public static void setSelectedBailout(Bailout b)
+	{
+		 selectedBailout = b;
 	}
 	
-	public static void setSelectedPalette(int n)
-	{
-		selectedPalette = n;
-	}
-	public static void setSelectedFractal(int n)
-	{
-		 selectedFractal = n;
-	}
-	public static void setFractalName(int pos, String s)
-	{
-		 fractalNames[pos] = s;
-	}
-	public static void setSelectedBailout(int n)
-	{
-		 selectedBailout = n;
-	}
-	public static void setBailoutlName(int pos, String s)
-	{
-		 bailoutNames[pos] = s;
-	}
 	public static void setMaxIterations(int n)
 	{
 		 maxIterations = n;
@@ -817,18 +849,6 @@ public class FractalCalculator {
 		 colorOutsidePixels = b;
 	}
 	
-	public static void addToSelectedPalette(int n)
-	{
-		selectedPalette += n;
-	}
-	public static void addToSelectedFractal(int n)
-	{
-		selectedFractal += n;
-	}
-	public static void addToSelectedBailout(int n)
-	{
-		selectedBailout += n;
-	}
 	public static void addToMaxIterations(int n)
 	{
 		maxIterations += n;
@@ -841,6 +861,12 @@ public class FractalCalculator {
 	{
 		colorOffset += n;
 	}
+
+	
+
+	
+
+	
 
 	
 
