@@ -21,6 +21,7 @@ import javax.swing.*;
 
 import calc.Complex;
 import calc.FractalCalculator;
+import calc.MiscTools;
 import calc.Palette;
 import main.DataHandler;
 
@@ -112,6 +113,12 @@ public class MainPanel extends JPanel implements ActionListener {
 	JuliaWindowRenderer jwr;
 	LargeWindowRenderer lwr;
 	ImageOutputRenderer ior;
+	
+	JTextField l_iterationTracker;
+	JTextField l_estimatedRenderTime;
+	JTextField l_averageTimePerIteration;
+	JTextField l_iterationsPerSecond;
+	JTextField l_predictedRenderIterations;
 	
 	ArrayList<JTextField> textFieldArrayList = new ArrayList<JTextField>();
 	
@@ -358,6 +365,7 @@ public class MainPanel extends JPanel implements ActionListener {
 		super.paint(g);
 		
 		colorFocusedJTextFields();
+		updateDiagnosticLabels();
 		
 		this.setBackground(Color.DARK_GRAY);
 		
@@ -466,6 +474,8 @@ public class MainPanel extends JPanel implements ActionListener {
 	//Render small window at top left. Not threaded
 	public void renderFinderWindow()
 	{
+		FractalCalculator.resetTrackers();
+		
 		btn_confirmRenderImage.setEnabled(false);
 		btn_confirmJuliaRenderImage.setEnabled(false);
 
@@ -481,7 +491,9 @@ public class MainPanel extends JPanel implements ActionListener {
 	}
 	public void renderLargeWindow()
 	{
-
+		FractalCalculator.resetTrackers();
+		FractalCalculator.startTimeTracker();
+		
 		IntStream.range(0, LARGE_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
 			FractalCalculator.calcFractalColumn(largeRenderWindow, i, false, 0, 0, -1);
 		});
@@ -497,18 +509,25 @@ public class MainPanel extends JPanel implements ActionListener {
 				});
 			}
 		}
+		
+		FractalCalculator.endTimeTracker();
 	}
 	public void renderJuliaWindow()
 	{
-
+		FractalCalculator.resetTrackers();
+		FractalCalculator.startTimeTracker();
+		
 		IntStream.range(0, JULIA_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
 			FractalCalculator.calcFractalColumn(juliaRenderWindow, i, true, juliaPoint.getR(), juliaPoint.getI(), -1);
 		});
+		
+		FractalCalculator.endTimeTracker();
 
 	}
 	public void renderImage(boolean julia)
 	{
-
+		FractalCalculator.resetTrackers();
+		
 		RenderProgressJPanel.presetJobs(renderImageSize);
 		RenderProgressJPanel.startStopwatch();
 		
@@ -526,20 +545,10 @@ public class MainPanel extends JPanel implements ActionListener {
 		else
 		{
 			
-			if (julia)
-				IntStream.range(0, renderImageSize).parallel().forEach(i -> { 
-					FractalCalculator.calcFractalColumn(buff, i, true, juliaPoint.getR(), juliaPoint.getI(), -1);
-				});
-			
-			else
-				IntStream.range(0, renderImageSize).parallel().forEach(i -> { 
-					FractalCalculator.calcFractalColumn(buff, i, false, 0, 0, -1);
-				});
-			
+			IntStream.range(0, renderImageSize).parallel().forEach(i -> { 
+				FractalCalculator.calcFractalColumn(buff, i, julia, juliaPoint.getR(), juliaPoint.getI(), -1);
+			});
 			RenderProgressJPanel.endStopwatch();
-			
-
-			
 		    
 			try {
 				ImageIO.write(buff, "png", out);
@@ -549,8 +558,6 @@ public class MainPanel extends JPanel implements ActionListener {
 		}
 		
 		rpThreadClass.release();
-
-		
 	}
 
 	
@@ -876,13 +883,13 @@ public class MainPanel extends JPanel implements ActionListener {
 	}
 	private JPanel create_eastPanel()
 	{
-		
+		final int PANEL_WIDTH = 310;
 		
 		//North panel of east
 		JPanel eastPanelNorth = new JPanel();
 		eastPanelNorth.setLayout(new GridBagLayout());
 		eastPanelNorth.setBorder(BorderFactory.createRaisedBevelBorder());
-		eastPanelNorth.setMaximumSize(new Dimension(310, 100));
+		eastPanelNorth.setMaximumSize(new Dimension(PANEL_WIDTH, 100));
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.insets = new Insets(0, 10, 0, 10);
@@ -985,7 +992,7 @@ public class MainPanel extends JPanel implements ActionListener {
 		//Center panel of east
 		JPanel eastPanelCenter = new JPanel();
 		eastPanelCenter.setLayout(new GridBagLayout());
-		eastPanelCenter.setMaximumSize(new Dimension(310, 400));
+		eastPanelCenter.setMaximumSize(new Dimension(PANEL_WIDTH, 400));
 		eastPanelCenter.setBorder(BorderFactory.createRaisedBevelBorder());
 		final int TEXT_FIELD_SIZE = 9;
 		final int FILLER_SIZE_X = 72;
@@ -1090,22 +1097,91 @@ public class MainPanel extends JPanel implements ActionListener {
 		eastPanelCenter.add(rfiller3, gbc);
 		
 		
+		JPanel eastPanelSouth = new JPanel();
+		eastPanelSouth.setLayout(new GridBagLayout());
+		eastPanelSouth.setBorder(BorderFactory.createRaisedBevelBorder());
+		eastPanelSouth.setMaximumSize(new Dimension(PANEL_WIDTH, 100));
 		
+		JLabel l_iterationTrackerLabel = new JLabel("IC:");
+		l_iterationTracker = new JTextField(7);
+		l_iterationTracker.setEditable(false);
+		
+		JLabel l_predictedRenderIterationsLabel = new JLabel("PRI:");
+		l_predictedRenderIterations = new JTextField(7);
+		l_predictedRenderIterations.setEditable(false);
+		
+		JLabel l_estimatedRenderTimeLabel = new JLabel("ERT:");
+		l_estimatedRenderTime = new JTextField(7);
+		l_estimatedRenderTime.setEditable(false);
+		
+		JLabel l_averageTimePerIterationLabel = new JLabel("ATPI:");
+		l_averageTimePerIteration = new JTextField(7);
+		l_averageTimePerIteration.setEditable(false);
+		
+		JLabel l_iterationsPerSecondLabel = new JLabel("IPS:");
+		l_iterationsPerSecond = new JTextField(7);
+		l_iterationsPerSecond.setEditable(false);
+		
+		
+		
+		gbcSet(gbc, 0, 0);
+		eastPanelSouth.add(l_iterationTrackerLabel, gbc);
+		gbcSet(gbc, 1, 0);
+		eastPanelSouth.add(l_iterationTracker, gbc);
+		gbcSet(gbc, 0, 1);
+		eastPanelSouth.add(l_predictedRenderIterationsLabel, gbc);
+		gbcSet(gbc, 1, 1);
+		eastPanelSouth.add(l_predictedRenderIterations, gbc);
+		gbcSet(gbc, 2, 0);
+		eastPanelSouth.add(l_averageTimePerIterationLabel, gbc);
+		gbcSet(gbc, 3, 0);
+		eastPanelSouth.add(l_averageTimePerIteration, gbc);
+		gbcSet(gbc, 2, 1);
+		eastPanelSouth.add(l_iterationsPerSecondLabel, gbc);
+		gbcSet(gbc, 3, 1);
+		eastPanelSouth.add(l_iterationsPerSecond, gbc);
+		gbcSet(gbc, 0, 2);
+		eastPanelSouth.add(l_estimatedRenderTimeLabel, gbc);
+		gbcSet(gbc, 1, 2);
+		eastPanelSouth.add(l_estimatedRenderTime, gbc);
 
-		JPanelFiller bfiller = new JPanelFiller(10, 500);
+		JPanelFiller bfiller = new JPanelFiller(10, 610);
 		JPanelFiller tfiller = new JPanelFiller(10, 5);
+		JPanelFiller mfiller1 = new JPanelFiller(10, 10);
+		JPanelFiller mfiller2 = new JPanelFiller(10, 10);
+		
+		
 		
 		JPanel eastPanel = new JPanel();
 		eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
 		eastPanel.add(tfiller);
 		eastPanel.add(eastPanelNorth);
+		eastPanel.add(mfiller1);
 		eastPanel.add(eastPanelCenter);
+		eastPanel.add(mfiller2);
+		eastPanel.add(eastPanelSouth);
 		eastPanel.add(bfiller);
 
 		return eastPanel;
 
 	}
-	
+	public void updateDiagnosticLabels()
+	{
+		l_iterationTracker.setText(String.format("%.1fM", FractalCalculator.getIterationTracker() / 1000000f));
+		double pri = Math.pow(renderImageSize, 2) * ((double) FractalCalculator.getIterationTracker() / Math.pow(LARGE_RENDER_WINDOW_SIZE, 2));
+		l_predictedRenderIterations.setText(String.format("%.1fM", pri / 1000000));
+		
+		if (FractalCalculator.getActiveTracker())
+		{	
+			double atpi = (System.nanoTime() - FractalCalculator.getTimeStartTrackerNano()) / (double) FractalCalculator.getIterationTracker();
+			l_averageTimePerIteration.setText(String.format("%.1fns", atpi));
+			double ips = (double) FractalCalculator.getIterationTracker() / ((double)(System.currentTimeMillis() - FractalCalculator.getTimeStartTrackerMillis()) / 1000.0);
+			l_iterationsPerSecond.setText(String.format("%.1fM", ips / 1000000.0));
+			
+			double ert = pri / ips;
+			l_estimatedRenderTime.setText(String.format("%s", MiscTools.millisToStringTime((long)(ert * 1000))));
+		}
+	}
 	
 	private JButton create_btn_renderPreview_Button() {
 		JButton button = new JButton("Render Preview");

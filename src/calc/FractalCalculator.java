@@ -95,8 +95,14 @@ public class FractalCalculator {
 	//Determines whether pixels calculated to be outside of the set are colored.
 	private static boolean colorOutsidePixels = true;
 	
-
+	//Tracker for iterations
+	private static long iterationTracker = 0;
 	
+	private static long timeStartTrackerNano = 0;
+	private static long timeEndTrackerNano = 0;
+	private static long timeStartTrackerMillis = 0;
+	private static long timeEndTrackerMillis = 0;
+	private static boolean activeTracker = false;
 	
 	/*
 	 * The main function driving fractal rendering. 
@@ -191,7 +197,8 @@ public class FractalCalculator {
 								points.add(z);
 							
 							iterations++;
-							RenderProgressJPanel.incIC();
+							
+							incIterationTracker();
 						}
 						//System.out.println(column+","+iy+". "+iterations+". ["+column+","+jy+"]");	
 						
@@ -249,7 +256,9 @@ public class FractalCalculator {
 						points.add(z);
 					
 					iterations++;
-					RenderProgressJPanel.incIC();
+					
+					
+					incIterationTracker();
 					//totalIterationsCalculated++;
 				}
 				
@@ -354,7 +363,8 @@ public class FractalCalculator {
 								points.add(z);
 							
 							iterations++;
-							RenderProgressJPanel.incIC();
+							
+							incIterationTracker();
 							//totalIterationsCalculated++;
 						}
 						//System.out.println(column+","+iy+". "+iterations+". ["+column+","+jy+"]");	
@@ -417,7 +427,8 @@ public class FractalCalculator {
 						points.add(z);
 					
 					iterations++;
-					RenderProgressJPanel.incIC();
+					
+					incIterationTracker();
 					//totalIterationsCalculated++;
 				}
 				if (iterations == maxIterations)
@@ -950,6 +961,58 @@ public class FractalCalculator {
 	public static void addToColorOffset(int n)
 	{
 		colorOffset += n;
+	}
+
+	
+
+	public static void startTimeTracker()
+	{
+		timeStartTrackerNano = System.nanoTime();
+		timeStartTrackerMillis = System.currentTimeMillis();
+		activeTracker = true;
+	}
+	public static void endTimeTracker()
+	{
+		timeEndTrackerNano = System.nanoTime();
+		timeStartTrackerMillis = System.currentTimeMillis();
+		activeTracker = false;
+	}
+	public static long getTimeStartTrackerNano()
+	{
+		return timeStartTrackerNano;
+	}
+	public static long getTimeStartTrackerMillis()
+	{
+		return timeStartTrackerMillis;
+	}
+	public static long getTimeDifferenceNano()
+	{
+		return timeEndTrackerNano - timeStartTrackerNano;
+	}
+	public static long getTimeDifferenceMillis()
+	{
+		return timeEndTrackerMillis - timeStartTrackerMillis;
+	}
+	public static boolean getActiveTracker()
+	{
+		return activeTracker;
+	}
+	public static long getIterationTracker()
+	{
+		return iterationTracker;
+	}
+	public static void incIterationTracker()
+	{
+		iterationTracker++;
+	}
+	public static void resetIterationTracker()
+	{
+		iterationTracker = 0;
+	}
+	public static void resetTrackers() 
+	{
+		iterationTracker = 0;
+		
 	}
 
 	

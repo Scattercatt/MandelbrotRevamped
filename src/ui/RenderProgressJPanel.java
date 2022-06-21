@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 import calc.FractalCalculator;
+import calc.MiscTools;
 public class RenderProgressJPanel extends JPanel implements ActionListener {
 	
 	
@@ -67,6 +68,7 @@ public class RenderProgressJPanel extends JPanel implements ActionListener {
 			updateATPI();
 			updateIPS();
 			updateProgressPercent();
+			updateIC();
 		}
 		this.setBackground(Color.BLACK);
 		
@@ -86,7 +88,7 @@ public class RenderProgressJPanel extends JPanel implements ActionListener {
 		g2D.drawString(String.format("%.2f%%",progressPercentage), 150, 20);
 		
 		g2D.setColor(Color.RED);
-		g2D.drawString(String.format("ELAPSED TIME: %s", millisToStringTime(elapsedMillis)), 250, 20);
+		g2D.drawString(String.format("ELAPSED TIME: %s", MiscTools.millisToStringTime(elapsedMillis)), 250, 20);
 		
 		g2D.drawString(String.format("IC:  %,d", ic), 10, 140);
 		
@@ -105,7 +107,7 @@ public class RenderProgressJPanel extends JPanel implements ActionListener {
 		g2D.drawString(String.format("PALETTE    : %s", FractalCalculator.getSelectedPalette().getName()), 10, 205);
 		g2D.drawString(String.format("ISC        : %s", FractalCalculator.getSelectedISC().getName()), 10, 220);
 		g2D.drawString(String.format("ITERATIONS : %d", FractalCalculator.getMaxIterations()), 180, 175);
-		//g2D.drawString(String.format("IMSIZE     : %d", MainPanel.getRenderImageSize()), 180, 190);
+		// g2D.drawString(String.format("IMSIZE     : %d", MainPanel.getRenderImageSize()), 180, 190);
 		
 		int renderDetailRepresentation = (int) Math.round(Math.pow(2, FractalCalculator.getRenderDetail()) * Math.pow(2, FractalCalculator.getRenderDetail()));
 		g2D.drawString(String.format("DETAIL LVL : %dx", renderDetailRepresentation), 10, 250);
@@ -199,20 +201,12 @@ public class RenderProgressJPanel extends JPanel implements ActionListener {
 		updateProgressPercent();
 
 	}
-	public static void incIC()
+	public static void updateIC()
 	{
-		ic++;
+		ic = FractalCalculator.getIterationTracker();
 	}
 	public static void incPC()
 	{
 		pc++;
-	}
-	private static String millisToStringTime(long millis)
-	{
-		String SS = String.format("%02d",(millis/1000l) % 60);
-		String MM = String.format("%02d",(millis/60000l) % 60);
-		String HH = String.format("%02d",(millis/3600000l));
-		
-		return String.format("%s:%s:%s", HH, MM, SS);
 	}
 }
