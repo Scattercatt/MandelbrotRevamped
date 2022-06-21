@@ -120,9 +120,9 @@ public class MainPanel extends JPanel implements ActionListener {
 	
 	private final int WAOFC = JComponent.WHEN_IN_FOCUSED_WINDOW; 
 	
-	MainPanel()
+	MainPanel(String renderOutputPathArg)
 	{
-		
+		renderOutputPath = renderOutputPathArg;
 		//Initializing fractals/bailouts/etc
 		FractalCalculator.initializeAll();
 		
@@ -221,13 +221,15 @@ public class MainPanel extends JPanel implements ActionListener {
 			
 		});
 		
-		final String[] MS = new String[] {"m_u", "m_d", "m_l", "m_r", "z_p", "z_n"};
+		final String[] MS = new String[] {"m_u", "m_d", "m_l", "m_r", "z_p", "z_n", "i_p", "i_n"};
 		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("UP"), MS[0]);
 		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("DOWN"), MS[1]);
 		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("LEFT"), MS[2]);
 		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("RIGHT"), MS[3]);
 		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("X"), MS[4]);
 		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("Z"), MS[5]);
+		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("W"), MS[6]);
+		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("Q"), MS[7]);
 		
 		getActionMap().put(MS[0], new MovementAction(MovementAction.UP));
 		getActionMap().put(MS[1], new MovementAction(MovementAction.DOWN));
@@ -235,6 +237,8 @@ public class MainPanel extends JPanel implements ActionListener {
 		getActionMap().put(MS[3], new MovementAction(MovementAction.RIGHT));
 		getActionMap().put(MS[4], new MovementAction(MovementAction.ZIN));
 		getActionMap().put(MS[5], new MovementAction(MovementAction.ZOUT));
+		getActionMap().put(MS[6], new MovementAction(MovementAction.IINC));
+		getActionMap().put(MS[7], new MovementAction(MovementAction.IDEC));
 		
 		
 		
@@ -250,6 +254,8 @@ public class MainPanel extends JPanel implements ActionListener {
 		static final byte RIGHT = 4;
 		static final byte ZIN = 5;
 		static final byte ZOUT = 6;
+		static final byte IINC = 7;
+		static final byte IDEC = 8;
 		
 		private byte direction;
 		
@@ -318,6 +324,23 @@ public class MainPanel extends JPanel implements ActionListener {
 				
 				p2[0] += zoomDistance;
 				p2[1] += zoomDistance;
+				renderFinderWindow();
+				return;
+			case IINC:
+				if (FractalCalculator.getMaxIterations() > 2000)
+					FractalCalculator.addToMaxIterations(100);
+				else if (FractalCalculator.getMaxIterations() > 30)
+					FractalCalculator.addToMaxIterations(10);
+				else
+					FractalCalculator.addToMaxIterations(1);
+				return;
+			case IDEC:
+				if (FractalCalculator.getMaxIterations() > 2000)
+					FractalCalculator.addToMaxIterations(-100);
+				else if (FractalCalculator.getMaxIterations() > 30)
+					FractalCalculator.addToMaxIterations(-10);
+				else if (FractalCalculator.getMaxIterations() > 0)
+					FractalCalculator.addToMaxIterations(-1);
 				renderFinderWindow();
 				return;
 				
@@ -989,6 +1012,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				tf_iterations.setText(String.valueOf(FractalCalculator.getMaxIterations()));
 			}
 			
+			mp.renderFinderWindow();
 			mp.requestFocusInWindow();
 		}});
 		
@@ -1021,6 +1045,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				tf_iterationsTillLoop.setText(String.valueOf(FractalCalculator.getModulusColorDivision()));
 			}
 			
+			mp.renderFinderWindow();
 			mp.requestFocusInWindow();
 		}});
 		
@@ -1053,6 +1078,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				tf_offset.setText(String.valueOf(FractalCalculator.getColorOffset()));
 			}
 			
+			mp.renderFinderWindow();
 			mp.requestFocusInWindow();
 		}});
 		

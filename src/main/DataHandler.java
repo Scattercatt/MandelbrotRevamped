@@ -58,7 +58,7 @@ public class DataHandler {
 		fw.close();
 	}
 	
-	public void read() throws IOException
+	public String read() throws IOException
 	{
 		File df = new File(dataDir+dataFileDir);
 		File pf = new File(dataDir+paletteFileDir);
@@ -68,9 +68,11 @@ public class DataHandler {
 		
 		Palette.saveRandomPalette(pf);
 		
-		mf.setRenderOutputPath(sc.nextLine());
+		String ret = sc.nextLine();
 		
 		sc.close();
+		
+		return ret;
 	}
 	public void verifyFiles()
 	{

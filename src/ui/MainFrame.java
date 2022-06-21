@@ -26,8 +26,10 @@ public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	private MainPanel mainPanel;
-	
+
 	private DataHandler dh;
+	
+	String rop;
 
 	public MainFrame()
 	{
@@ -37,8 +39,9 @@ public class MainFrame extends JFrame {
 		dh.initDataDir();
 		dh.verifyFiles();
 		
+		
 		try {
-			dh.read();
+			rop = dh.read();
 		} catch (IOException e1) {		
 			e1.printStackTrace();
 		}
@@ -46,7 +49,7 @@ public class MainFrame extends JFrame {
 		
 		JFrame f = new JFrame("Mandelbrot Revamped 0.2.1-beta");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainPanel = new MainPanel();
+		mainPanel = new MainPanel(rop);
 		
 		
 		
@@ -297,9 +300,5 @@ public class MainFrame extends JFrame {
 		return mainPanel;
 	}
 
-	public void setRenderOutputPath(String nextLine) 
-	{
-		// TODO Auto-generated method stub
-		
-	}
+
 }
