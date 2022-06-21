@@ -1,9 +1,11 @@
-package main;
+package calc;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+
+import ui.RenderProgressJPanel;
 
 public class FractalCalculator {
 	

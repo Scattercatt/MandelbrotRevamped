@@ -1,4 +1,4 @@
-package main;
+package calc;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
@@ -293,7 +293,7 @@ public class Palette
    * @throws IOException 
    * 
    */
-  static void saveRandomPalette(File paletteFile) throws IOException
+  public static void saveRandomPalette(File paletteFile) throws IOException
   {
 	  /*
 	  FileWriter fw = new FileWriter(paletteFile);

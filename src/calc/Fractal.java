@@ -1,4 +1,4 @@
-package main;
+package calc;
 
 public class Fractal {
 	

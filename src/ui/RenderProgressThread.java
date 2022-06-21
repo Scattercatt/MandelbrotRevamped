@@ -1,4 +1,4 @@
-package main;
+package ui;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;

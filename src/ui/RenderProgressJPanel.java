@@ -1,4 +1,4 @@
-package main;
+package ui;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
+
+import calc.FractalCalculator;
 public class RenderProgressJPanel extends JPanel implements ActionListener {
 	
 	
@@ -103,7 +105,7 @@ public class RenderProgressJPanel extends JPanel implements ActionListener {
 		g2D.drawString(String.format("PALETTE    : %s", FractalCalculator.getSelectedPalette().getName()), 10, 205);
 		g2D.drawString(String.format("ISC        : %s", FractalCalculator.getSelectedISC().getName()), 10, 220);
 		g2D.drawString(String.format("ITERATIONS : %d", FractalCalculator.getMaxIterations()), 180, 175);
-		g2D.drawString(String.format("IMSIZE     : %d", MainPanel.getRenderImageSize()), 180, 190);
+		//g2D.drawString(String.format("IMSIZE     : %d", MainPanel.getRenderImageSize()), 180, 190);
 		
 		int renderDetailRepresentation = (int) Math.round(Math.pow(2, FractalCalculator.getRenderDetail()) * Math.pow(2, FractalCalculator.getRenderDetail()));
 		g2D.drawString(String.format("DETAIL LVL : %dx", renderDetailRepresentation), 10, 250);

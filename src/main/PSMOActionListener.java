@@ -3,7 +3,9 @@ package main;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-class PSMOActionListener implements ActionListener
+import calc.FractalCalculator;
+
+public class PSMOActionListener implements ActionListener
 {
 	int mode;
 	/**

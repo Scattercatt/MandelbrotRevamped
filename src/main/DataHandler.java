@@ -5,6 +5,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+import calc.FractalCalculator;
+import calc.Palette;
+import ui.MainFrame;
+import calc.Palette;
+
 public class DataHandler {
 	
 	private static String dataDir = "C:\\Users\\"+System.getProperty("user.name")+"\\Documents\\MandelbrotRevamped\\";
@@ -16,10 +21,17 @@ public class DataHandler {
 	
 	private static final String[] DEFAULT_PALETTES = new String[] {"3_Color_(Alt) > 0,255,255 > 255,0,255 > 255,255,0 % a", "3_Color_(Basic) > 255,0,0 > 0,255,0 > 0,0,255 % a", "Sunny > 0,0,255 > 255,255,255 > 255,255,0 > 255,0,0 % a"};
 	
+	private MainFrame mf;
+	
+	public DataHandler(MainFrame mp)
+	{
+		this.mf = mp;
+	}
+	
 	/*
 	 *  Function that initializes where the data will be stored based on the current OS.
 	 */
-	public static void initDataDir()
+	public void initDataDir()
 	{
 		String os = System.getProperty("os.name");
 		
@@ -37,16 +49,16 @@ public class DataHandler {
 		
 	}
 	
-	public static void write() throws IOException
+	public void write() throws IOException
 	{
 		FileWriter fw = new FileWriter(dataDir+dataFileDir);
-		fw.write(MainPanel.getRenderOutputPath());
+		fw.write(mf.getMainPanel().getRenderOutputPath());
 		
 		
 		fw.close();
 	}
 	
-	public static void read() throws IOException
+	public void read() throws IOException
 	{
 		File df = new File(dataDir+dataFileDir);
 		File pf = new File(dataDir+paletteFileDir);
@@ -56,11 +68,11 @@ public class DataHandler {
 		
 		Palette.saveRandomPalette(pf);
 		
-		MainPanel.setRenderOutputPath(sc.nextLine());
+		mf.setRenderOutputPath(sc.nextLine());
 		
 		sc.close();
 	}
-	public static void verifyFiles()
+	public void verifyFiles()
 	{
 		//Data file dir
 		File fddir = new File(dataDir);
@@ -100,36 +112,36 @@ public class DataHandler {
 		
 	}
 	
-	public static String getDataDir()
+	public String getDataDir()
 	{
 		return dataDir;
 	}
-	public static String getPictureDir()
+	public String getPictureDir()
 	{
 		return pictureDir;
 	}
-	public static String getDataFileDir()
+	public String getDataFileDir()
 	{
 		return dataFileDir;
 	}
-	public static String getPaletteFileDir()
+	public String getPaletteFileDir()
 	{
 		return paletteFileDir;
 	}
 	
-	public static void setDataDir(String s)
+	public void setDataDir(String s)
 	{
 		dataDir = s;
 	}
-	public static void setPictureDir(String s)
+	public void setPictureDir(String s)
 	{
 		pictureDir = s;
 	}
-	public static void setDataFileDir(String s)
+	public void setDataFileDir(String s)
 	{
 		dataFileDir = s;
 	}
-	public static void setPaletteFileDir(String s)
+	public void setPaletteFileDir(String s)
 	{
 		paletteFileDir = s;
 	}

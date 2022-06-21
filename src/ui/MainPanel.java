@@ -1,4 +1,4 @@
-package main;
+package ui;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -19,7 +19,12 @@ import javax.imageio.ImageIO;
 
 import javax.swing.*;
 
-public class MainPanel extends JPanel implements ActionListener, KeyListener {
+import calc.Complex;
+import calc.FractalCalculator;
+import calc.Palette;
+import main.DataHandler;
+
+public class MainPanel extends JPanel implements ActionListener {
 	
 	/**
 	 * 
@@ -85,10 +90,7 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 	JRadioButton rbtn_2xQuality;
 	JRadioButton rbtn_4xQuality;
 	ButtonGroup bg_quality;
-	
-	JCheckBox cb_colorInsidePoints;
-	JCheckBox cb_colorOutsidePoints;
-	
+
 	JRadioButton rbtn_controlMain;
 	JRadioButton rbtn_controlJulia;
 	ButtonGroup bg_control;
@@ -111,6 +113,13 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 	LargeWindowRenderer lwr;
 	ImageOutputRenderer ior;
 	
+	ArrayList<JTextField> textFieldArrayList = new ArrayList<JTextField>();
+	
+	//DEBUG
+	final static boolean debugShowFillerBorders = true;
+	
+	private final int WAOFC = JComponent.WHEN_IN_FOCUSED_WINDOW; 
+	
 	MainPanel()
 	{
 		
@@ -125,14 +134,7 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 		String x = System.getProperty("os.name");
 		System.out.println(x);
 		
-		DataHandler.initDataDir();
-		DataHandler.verifyFiles();
 		
-		try {
-			DataHandler.read();
-		} catch (IOException e1) {		
-			e1.printStackTrace();
-		}
 		
 		FractalCalculator.setSelectedPalette(FractalCalculator.getPaletteArray().get(0));
 		
@@ -194,9 +196,10 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 					previewPaletteShiftWindows.get(j)[ix][iy] = Color.GRAY;
 				}	
 		
-		this.addMouseListener(new MouseAdapter() {
+		this.addMouseListener(new MouseAdapterModified(this) {
 			@Override 
 			public void mousePressed(MouseEvent e) {
+				
 				if (e.getButton() == MouseEvent.BUTTON1 && 
 						e.getX() > LARGE_RENDER_WINDOW_POSITION[0] && 
 						e.getX() < LARGE_RENDER_WINDOW_POSITION[0] + LARGE_RENDER_WINDOW_SIZE &&
@@ -212,14 +215,126 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 					
 					jwr.start();
 				}
+				
+				mp.requestFocusInWindow();
 			}
 			
 		});
+		
+		final String[] MS = new String[] {"m_u", "m_d", "m_l", "m_r", "z_p", "z_n"};
+		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("UP"), MS[0]);
+		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("DOWN"), MS[1]);
+		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("LEFT"), MS[2]);
+		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("RIGHT"), MS[3]);
+		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("X"), MS[4]);
+		getInputMap(WAOFC).put(KeyStroke.getKeyStroke("Z"), MS[5]);
+		
+		getActionMap().put(MS[0], new MovementAction(MovementAction.UP));
+		getActionMap().put(MS[1], new MovementAction(MovementAction.DOWN));
+		getActionMap().put(MS[2], new MovementAction(MovementAction.LEFT));
+		getActionMap().put(MS[3], new MovementAction(MovementAction.RIGHT));
+		getActionMap().put(MS[4], new MovementAction(MovementAction.ZIN));
+		getActionMap().put(MS[5], new MovementAction(MovementAction.ZOUT));
+		
+		
+		
+		setVisible(true);
+		
+	}
+	
+	private class MovementAction extends AbstractAction
+	{
+		static final byte UP = 1;
+		static final byte DOWN = 2;
+		static final byte LEFT = 3;
+		static final byte RIGHT = 4;
+		static final byte ZIN = 5;
+		static final byte ZOUT = 6;
+		
+		private byte direction;
+		
+		MovementAction(byte direction)
+		{
+			this.direction = direction;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			double  movementDistance, zoomDistance;
+			final double MOVEMENT_PERCENTAGE = 0.05, ZOOM_PERCENTAGE = 0.05;			
+			double[] p1, p2;
+			
+			if (controlJuliaWindow)
+			{
+				p1 = getJP1();
+				p2 = getJP2();
+			}
+			else
+			{
+				p1 = getP1();
+				p2 = getP2();
+			}
+			
+			switch(direction)
+			{
+			case UP:
+				movementDistance = (p2[1] - p1[1]) * MOVEMENT_PERCENTAGE;
+				p1[1] -= movementDistance;
+				p2[1] -= movementDistance;
+				renderFinderWindow();	
+				return;
+			case DOWN:
+				movementDistance = (p2[1] - p1[1]) * MOVEMENT_PERCENTAGE;
+				p1[1] += movementDistance;
+				p2[1] += movementDistance;
+				renderFinderWindow();	
+				return;
+			case LEFT:
+				movementDistance = (p2[0] - p1[0]) * MOVEMENT_PERCENTAGE;
+				p1[0] -= movementDistance;
+				p2[0] -= movementDistance;
+				renderFinderWindow();
+				return;
+			case RIGHT:
+				movementDistance = (p2[0] - p1[0]) * MOVEMENT_PERCENTAGE;
+				p1[0] += movementDistance;
+				p2[0] += movementDistance;
+				renderFinderWindow();	
+				return;
+			case ZIN:
+				zoomDistance = (p2[1] - p1[1]) * ZOOM_PERCENTAGE;
+				p1[0] += zoomDistance;
+				p1[1] += zoomDistance;
+				
+				p2[0] -= zoomDistance;
+				p2[1] -= zoomDistance;
+				renderFinderWindow();
+				return;
+			case ZOUT:
+				zoomDistance = (p2[1] - p1[1]) * ZOOM_PERCENTAGE;
+				p1[0] -= zoomDistance;
+				p1[1] -= zoomDistance;
+				
+				p2[0] += zoomDistance;
+				p2[1] += zoomDistance;
+				renderFinderWindow();
+				return;
+				
+			default:
+				
+				return;
+			}
+			
+		}
+		
 	}
 	
 	public void paint(Graphics g)
 	{
 		super.paint(g);
+		
+		colorFocusedJTextFields();
 		
 		this.setBackground(Color.DARK_GRAY);
 		
@@ -317,11 +432,11 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 		
 		
 	}
-	public static int getRenderImageSize()
+	public int getRenderImageSize()
 	{
 		return renderImageSize;
 	}
-	public static void setRenderImageSize(int r)
+	public void setRenderImageSize(int r)
 	{
 		renderImageSize = r;
 	}
@@ -422,11 +537,7 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 		this.repaint();
 	}
 
-	@Override
-	public void keyTyped(KeyEvent e) {
-
-	}
-	
+	/*
 	@Override
 	public void keyPressed(KeyEvent e) {
 		
@@ -529,6 +640,7 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 			
 		}
 	}
+	*/
 	
 	public class LargeWindowRenderer implements Runnable{
 		Thread myThread;
@@ -590,11 +702,6 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 		}
 	}
 
-	@Override
-	public void keyReleased(KeyEvent e) {
-		
-	}
-	
 	private void callErrorFrame(String message)
 	{
 		errorLabel.setText(message);
@@ -613,29 +720,6 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.insets = new Insets(0, 10, 0, 10);
 
-		
-		cb_colorInsidePoints = new JCheckBox("Inside points");
-		cb_colorInsidePoints.setFocusable(false);
-		cb_colorInsidePoints.setSelected(FractalCalculator.getColorInsidePixels());
-		cb_colorInsidePoints.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			FractalCalculator.setColorInsidePixels(cb_colorInsidePoints.isSelected());
-			renderFinderWindow();
-		}});
-		gbc.gridx = 1;
-		gbc.gridy = 0;
-		southPanel.add(cb_colorInsidePoints, gbc);
-		
-		cb_colorOutsidePoints = new JCheckBox("Outside points");
-		cb_colorOutsidePoints.setFocusable(false);
-		cb_colorOutsidePoints.setSelected(FractalCalculator.getColorOutsidePixels());
-		cb_colorOutsidePoints.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			FractalCalculator.setColorOutsidePixels(cb_colorOutsidePoints.isSelected());
-			renderFinderWindow();
-		}});
-		gbc.gridx = 1;
-		gbc.gridy = 1;
-		southPanel.add(cb_colorOutsidePoints, gbc);
-		
 		btn_renderPreview = create_btn_renderPreview_Button();
 		gbc.gridx = 0;
 		gbc.gridy = 0;
@@ -771,16 +855,18 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 	{
 		
 		
+		//North panel of east
 		JPanel eastPanelNorth = new JPanel();
 		eastPanelNorth.setLayout(new GridBagLayout());
+		eastPanelNorth.setBorder(BorderFactory.createRaisedBevelBorder());
+		eastPanelNorth.setMaximumSize(new Dimension(310, 100));
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.insets = new Insets(0, 10, 0, 10);
 		
 		//Fractal dropdown
 		JLabel jl_fractalList = new JLabel("Fractals:");
-		gbc.gridx = 0;
-		gbc.gridy = 0;
+		gbcSet(gbc, 0, 0);
 		eastPanelNorth.add(jl_fractalList, gbc);
 		
 		String[] fractalNames = FractalCalculator.getAllFractalNames();
@@ -793,15 +879,13 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 			renderFinderWindow();
 		}});
 		
-		gbc.gridx = 1;
-		gbc.gridy = 0;
+		gbcSet(gbc, 1, 0);
 		eastPanelNorth.add(jcb_fractalList, gbc);
 		
 		
 		//Palette dropdown
 		JLabel jl_paletteList = new JLabel("Palettes:");
-		gbc.gridx = 0;
-		gbc.gridy = 1;
+		gbcSet(gbc, 0, 1);
 		eastPanelNorth.add(jl_paletteList, gbc);
 		
 		String[] paletteNames = FractalCalculator.getAllPaletteNames();
@@ -814,14 +898,12 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 			renderFinderWindow();
 		}});
 		
-		gbc.gridx = 1;
-		gbc.gridy = 1;
+		gbcSet(gbc, 1, 1);
 		eastPanelNorth.add(jcb_paletteList, gbc);
 		
 		//Bailout dropdown
 		JLabel jl_bailoutList = new JLabel("Bailouts:");
-		gbc.gridx = 0;
-		gbc.gridy = 2;
+		gbcSet(gbc, 0, 2);
 		eastPanelNorth.add(jl_bailoutList, gbc);
 		
 		String[] bailoutNames = FractalCalculator.getAllBailoutNames();
@@ -834,113 +916,241 @@ public class MainPanel extends JPanel implements ActionListener, KeyListener {
 			renderFinderWindow();
 		}});
 		
-		gbc.gridx = 1;
-		gbc.gridy = 2;
+		gbcSet(gbc, 1, 2);
 		eastPanelNorth.add(jcb_bailoutList, gbc);
 		
 		//ISC dropdown
-				JLabel jl_ISCList = new JLabel("ISCs:");
-				gbc.gridx = 0;
-				gbc.gridy = 3;
-				eastPanelNorth.add(jl_ISCList, gbc);
-				
-				String[] ISCNames = FractalCalculator.getAllISCNames();
-				JComboBox jcb_ISCList = new JComboBox(ISCNames);
-				
-				jcb_ISCList.setSelectedIndex(0);
-				jcb_ISCList.setFocusable(false);
-				jcb_ISCList.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {
-					FractalCalculator.setSelectedISC(FractalCalculator.getISCArray().get(jcb_ISCList.getSelectedIndex()));
-					renderFinderWindow();
-				}});
-				
-				gbc.gridx = 1;
-				gbc.gridy = 3;
-				eastPanelNorth.add(jcb_ISCList, gbc);
-
-		/*
-		btn_incOffset = new JButton("/\\");
-		btn_incOffset.setFocusable(false);
-		btn_incOffset.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			FractalCalculator.addToColorOffset(1);
+		JLabel jl_ISCList = new JLabel("ISCs:");
+		gbcSet(gbc, 0, 3);
+		eastPanelNorth.add(jl_ISCList, gbc);
+		
+		String[] ISCNames = FractalCalculator.getAllISCNames();
+		JComboBox jcb_ISCList = new JComboBox(ISCNames);
+		jcb_ISCList.setEnabled(false);
+		jcb_ISCList.setSelectedIndex(0);
+		jcb_ISCList.setFocusable(false);
+		jcb_ISCList.addActionListener(new ActionListener() {@Override public void actionPerformed(ActionEvent e) {
+			FractalCalculator.setSelectedISC(FractalCalculator.getISCArray().get(jcb_ISCList.getSelectedIndex()));
 			renderFinderWindow();
 		}});
-		eastPanelNorth.add(btn_incOffset);
 		
-		btn_decOffset = new JButton("\\/");
-		btn_decOffset.setFocusable(false);
-		btn_decOffset.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
-			if (FractalCalculator.getColorOffset() > 0)
-			{
-				FractalCalculator.addToColorOffset(-1);
-				renderFinderWindow();
-			}
+		gbcSet(gbc, 1, 3);
+		eastPanelNorth.add(jcb_ISCList, gbc);
+		
+	
+		JCheckBox cb_colorInsidePoints = new JCheckBox("Inside points");
+		cb_colorInsidePoints.setFocusable(false);
+		cb_colorInsidePoints.setSelected(FractalCalculator.getColorInsidePixels());
+		cb_colorInsidePoints.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
+			FractalCalculator.setColorInsidePixels(cb_colorInsidePoints.isSelected());
+			jcb_ISCList.setEnabled(cb_colorInsidePoints.isSelected());
+			renderFinderWindow();
 		}});
-		eastPanelNorth.add(btn_decOffset);
+		gbcSet(gbc, 0, 4);
+		eastPanelNorth.add(cb_colorInsidePoints, gbc);
+		
+		JCheckBox cb_colorOutsidePoints = new JCheckBox("Outside points");
+		cb_colorOutsidePoints.setFocusable(false);
+		cb_colorOutsidePoints.setSelected(FractalCalculator.getColorOutsidePixels());
+		cb_colorOutsidePoints.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
+			FractalCalculator.setColorOutsidePixels(cb_colorOutsidePoints.isSelected());
+			renderFinderWindow();
+		}});
+		gbcSet(gbc, 0, 5);
+		eastPanelNorth.add(cb_colorOutsidePoints, gbc);
+		
+		//Center panel of east
+		JPanel eastPanelCenter = new JPanel();
+		eastPanelCenter.setLayout(new GridBagLayout());
+		eastPanelCenter.setMaximumSize(new Dimension(310, 400));
+		eastPanelCenter.setBorder(BorderFactory.createRaisedBevelBorder());
+		final int TEXT_FIELD_SIZE = 9;
+		final int FILLER_SIZE_X = 72;
+		
+		
+		///////// Iterations text field
+		JLabel l_iterations = new JLabel("Iterations:");
+		
+		gbcSet(gbc, 0, 0);
+		eastPanelCenter.add(l_iterations, gbc);
+		
+		JTextField tf_iterations = new JTextField(TEXT_FIELD_SIZE);
+		textFieldArrayList.add(tf_iterations);
+		tf_iterations.setText(String.valueOf(FractalCalculator.getMaxIterations()));
+		tf_iterations.addActionListener(new TextActionListener(this){@Override public void actionPerformed(ActionEvent e) {
+			
+			try {
+				int t = Integer.parseInt(tf_iterations.getText());
+				if (t < 0) throw new Exception();
+				FractalCalculator.setMaxIterations(t);
+			} catch (Exception ex)
+			{
+				callErrorFrame("Input must be non-negative integer");
+				tf_iterations.setText(String.valueOf(FractalCalculator.getMaxIterations()));
+			}
+			
+			mp.requestFocusInWindow();
+		}});
+		
+		gbcSet(gbc, 1, 0);
+		eastPanelCenter.add(tf_iterations, gbc);
+		
+		JPanelFiller rfiller1 = new JPanelFiller(FILLER_SIZE_X, 20);
+		gbcSet(gbc, 2, 0);
+		eastPanelCenter.add(rfiller1, gbc);
+		
+		///////// Iterations Till Loop text field
+		JLabel l_iterationsTillLoop = new JLabel("ITL:");
+		
+		gbcSet(gbc, 0, 1);
+		eastPanelCenter.add(l_iterationsTillLoop, gbc);
+		
+		JTextField tf_iterationsTillLoop = new JTextField(TEXT_FIELD_SIZE);
+		textFieldArrayList.add(tf_iterationsTillLoop);
+		tf_iterationsTillLoop.setText(String.valueOf(FractalCalculator.getModulusColorDivision()));
+		tf_iterationsTillLoop.addActionListener(new TextActionListener(this){@Override public void actionPerformed(ActionEvent e) {
+			
+			try {
+				int t = Integer.parseInt(tf_iterationsTillLoop.getText());
+				if (t < 0) throw new Exception();
+				FractalCalculator.setModulusColorDivision(t);
+				
+			} catch (Exception ex)
+			{
+				callErrorFrame("Input must be non-negative be integer");
+				tf_iterationsTillLoop.setText(String.valueOf(FractalCalculator.getModulusColorDivision()));
+			}
+			
+			mp.requestFocusInWindow();
+		}});
+		
+		gbcSet(gbc, 1, 1);
+		eastPanelCenter.add(tf_iterationsTillLoop, gbc);
+		
+		JPanelFiller rfiller2 = new JPanelFiller(FILLER_SIZE_X, 20);
+		gbcSet(gbc, 2, 1);
+		eastPanelCenter.add(rfiller2, gbc);
+		
+		//////////// Offset text field
+		JLabel l_offset = new JLabel("Color Offset:");
+		
+		gbcSet(gbc, 0, 2);
+		eastPanelCenter.add(l_offset, gbc);
+		
+		JTextField tf_offset = new JTextField(TEXT_FIELD_SIZE);
+		textFieldArrayList.add(tf_offset);
+		tf_offset.setText(String.valueOf(FractalCalculator.getColorOffset()));
+		tf_offset.addActionListener(new TextActionListener(this){@Override public void actionPerformed(ActionEvent e) {
+			
+			try {
+				int t = Integer.parseInt(tf_offset.getText());
+				if (t < 0) throw new Exception();
+				FractalCalculator.setColorOffset(t);
+				
+			} catch (Exception ex)
+			{
+				callErrorFrame("Input must be non-negative be integer");
+				tf_offset.setText(String.valueOf(FractalCalculator.getColorOffset()));
+			}
+			
+			mp.requestFocusInWindow();
+		}});
+		
+		gbcSet(gbc, 1, 2);
+		eastPanelCenter.add(tf_offset, gbc);
+		
+		JPanelFiller rfiller3 = new JPanelFiller(FILLER_SIZE_X, 20);
+		gbcSet(gbc, 2, 2);
+		eastPanelCenter.add(rfiller3, gbc);
+		
+		
+		
 
-		 */
+		JPanelFiller bfiller = new JPanelFiller(10, 500);
+		JPanelFiller tfiller = new JPanelFiller(10, 5);
 		
 		JPanel eastPanel = new JPanel();
-		eastPanel.setLayout(new BorderLayout());
-		eastPanel.add(eastPanelNorth, "North");
-		
+		eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
+		eastPanel.add(tfiller);
+		eastPanel.add(eastPanelNorth);
+		eastPanel.add(eastPanelCenter);
+		eastPanel.add(bfiller);
+
 		return eastPanel;
 
 	}
+	
+	
+	private JButton create_btn_renderPreview_Button() {
+		JButton button = new JButton("Render Preview");
+		button.setFocusable(false);
+		button.setToolTipText("Render the current position in the main preview window.");
+		button.setMnemonic(KeyEvent.VK_E);
 		
-		private JButton create_btn_renderPreview_Button() {
-			JButton button = new JButton("Render Preview");
-			button.setFocusable(false);
-			button.setToolTipText("Render the current position in the main preview window.");
-			button.setMnemonic(KeyEvent.VK_E);
-			
-			button.addActionListener(new ActionListener() 
+		button.addActionListener(new ActionListener() 
+				{
+					@Override
+					public void actionPerformed(ActionEvent e)
 					{
-						@Override
-						public void actionPerformed(ActionEvent e)
-						{
-							lwr.start();
-						}
+						lwr.start();
 					}
-			);
-			
-			return button;
-			
+				}
+		);
+		
+		return button;
+		
+	}
+	
+	private void colorFocusedJTextFields()
+	{
+		for (JTextField tf : textFieldArrayList)
+		{
+			if (tf.isFocusOwner())
+				tf.setBackground(Color.YELLOW);
+			else
+				tf.setBackground(Color.WHITE);
 		}
-	public static void setPreviewPaletteShifts(boolean x)
+	}
+	
+	private void gbcSet(GridBagConstraints gbc, int x, int y)
+	{
+		gbc.gridx = x;
+		gbc.gridy = y;
+	}
+	public void setPreviewPaletteShifts(boolean x)
 	{
 		previewPaletteShifts = x;
 	}
-	public static boolean getPreviewPaletteShifts()
+	public boolean getPreviewPaletteShifts()
 	{
 		return previewPaletteShifts;
 	}
-	public static void setRenderOutputPath(String x)
+	public void setRenderOutputPath(String x)
 	{
 		renderOutputPath = x;
 	}
-	public static String getRenderOutputPath()
+	public String getRenderOutputPath()
 	{
 		return renderOutputPath;
 	}
-	public static int getRenderSize()
+	public int getRenderSize()
 	{
 		return renderImageSize;
 	}
 	
-	private static double[] getP1()
+	private double[] getP1()
 	{
 		return FractalCalculator.getCameraP1();
 	}
-	private static double[] getP2()
+	private double[] getP2()
 	{
 		return FractalCalculator.getCameraP2();
 	}
-	private static double[] getJP1()
+	private double[] getJP1()
 	{
 		return FractalCalculator.getJuliaCameraP1();
 	}
-	private static double[] getJP2()
+	private double[] getJP2()
 	{
 		return FractalCalculator.getJuliaCameraP2();
 	}

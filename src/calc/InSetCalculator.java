@@ -1,4 +1,4 @@
-package main;
+package calc;
 
 import java.util.ArrayList;
 import java.util.Collections;

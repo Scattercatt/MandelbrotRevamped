@@ -1,4 +1,4 @@
-package main;
+package calc;
 /**
     Complex implements a complex number and defines complex
     arithmetic and mathematical functions
