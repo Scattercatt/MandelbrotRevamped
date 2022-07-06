@@ -13,7 +13,7 @@ public class JPanelFiller extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean DEBUG_SHOW_BORDERS = true;
+	private static final boolean DEBUG_SHOW_BORDERS = false;
 	
 	public JPanelFiller(int x, int y)
 	{
