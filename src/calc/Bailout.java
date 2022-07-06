@@ -9,7 +9,7 @@ public class Bailout {
 		this.name = name;
 	}
 	
-	public boolean escaped(Complex Z)
+	public boolean escaped(Complex Z, Complex C)
 	{
 		return true;
 	}

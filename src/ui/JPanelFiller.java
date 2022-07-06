@@ -13,11 +13,11 @@ public class JPanelFiller extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean debugShowBorders = false;
+	private static final boolean DEBUG_SHOW_BORDERS = true;
 	
 	public JPanelFiller(int x, int y)
 	{
-		if (debugShowBorders)
+		if (DEBUG_SHOW_BORDERS)
 			this.setBorder(BorderFactory.createLineBorder(Color.MAGENTA));
 		
 		this.setPreferredSize(new Dimension(x, y));

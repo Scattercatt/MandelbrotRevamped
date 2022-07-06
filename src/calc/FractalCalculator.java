@@ -187,7 +187,7 @@ public class FractalCalculator {
 						if (colorInsidePixels)
 							points.add(c);
 			
-						while (!selectedBailout.escaped(z) && iterations < maxIterations) 
+						while (!selectedBailout.escaped(z, c) && iterations < maxIterations) 
 						{
 							
 							//z = ZIterative(z, c);
@@ -247,7 +247,7 @@ public class FractalCalculator {
 				if (colorInsidePixels)
 					points.add(c);
 				
-				while (!selectedBailout.escaped(z) && iterations < maxIterations) 
+				while (!selectedBailout.escaped(z, c) && iterations < maxIterations) 
 				{
 					//z = ZIterative(z, c);
 					z = selectedFractal.ZIterative(z, c);
@@ -353,7 +353,7 @@ public class FractalCalculator {
 						if (colorInsidePixels)
 							points.add(c);
 			
-						while (!selectedBailout.escaped(z) && iterations < maxIterations) // x*x + y*y < 4
+						while (!selectedBailout.escaped(z, c) && iterations < maxIterations) // x*x + y*y < 4
 						{
 							
 							//z = ZIterative(z, c);
@@ -417,7 +417,7 @@ public class FractalCalculator {
 				if (colorInsidePixels)
 					points.add(c);
 				
-				while (!selectedBailout.escaped(z) && iterations < maxIterations) 
+				while (!selectedBailout.escaped(z, c) && iterations < maxIterations) 
 				{
 					
 					//z = ZIterative(z, c);
@@ -616,13 +616,45 @@ public class FractalCalculator {
 			}
 			
 		});
+		fractals.add(new Fractal("Grid") {
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Z = Z.add(new Complex(getDecimal(Z.getR()), getDecimal(Z.getI())));
+			    Z = Z.add(C);
+			    return Z;
+			}
+			
+		});
+		fractals.add(new Fractal("TrigTest1") {
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				
+				Z = Z.sin().tan().cos();
+				Z = Z.add(C.cos().mult(C));
+			    return Z;
+			}
+			
+		});
+		fractals.add(new Fractal("Areth2") {
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Z = Z.sub(Z);
+				Z = Z.sub(C);
+				Z = Z.add(Z.exp().log());
+				Z = Z.add(C.exp().log());
+				
+			    return Z;
+			}
+			
+		});
+		
 	}
 	public static void initializeBailouts()
 	{
 		
 		bailouts.add(new Bailout("Basic") {
 			@Override
-			public boolean escaped(Complex Z)
+			public boolean escaped(Complex Z, Complex C)
 			{
 				if (Z.mod() > 4)
 			         return true;
@@ -636,7 +668,7 @@ public class FractalCalculator {
 		
 		bailouts.add(new Bailout("Follicle") {
 			@Override
-			public boolean escaped(Complex Z)
+			public boolean escaped(Complex Z, Complex C)
 			{
 				if (Z.getR() * Z.getI() > 1000)
 			         return true;
@@ -645,7 +677,7 @@ public class FractalCalculator {
 		});
 		bailouts.add(new Bailout("Jungle") {
 			@Override
-			public boolean escaped(Complex Z)
+			public boolean escaped(Complex Z, Complex C)
 			{
 				if (Z.getR() * Z.getI() > Z.getI() * Z.getI())
 			    	 return true;
@@ -654,7 +686,7 @@ public class FractalCalculator {
 		});
 		bailouts.add(new Bailout("Amazon") {
 			@Override
-			public boolean escaped(Complex Z)
+			public boolean escaped(Complex Z, Complex C)
 			{
 				if (Z.getR() > 0.3 && Z.getI() > 0.3)
 				     return true;
@@ -663,9 +695,29 @@ public class FractalCalculator {
 		});
 		bailouts.add(new Bailout("RminusI>5") {
 			@Override
-			public boolean escaped(Complex Z)
+			public boolean escaped(Complex Z, Complex C)
 			{
 				if (Z.getR() - Z.getI() > 5)
+				     return true;
+				return false;
+			}
+		});
+		bailouts.add(new Bailout("ZCMod") {
+			@Override
+			public boolean escaped(Complex Z, Complex C)
+			{
+				if (Z.mod() > C.mod())
+				     return true;
+				return false;
+			}
+		});
+		bailouts.add(new Bailout("LA+>10") {
+			@Override
+			public boolean escaped(Complex Z, Complex C)
+			{
+				Complex Z1 = Z.log().add(C);
+				Complex C1 = C.exp().sub(Z);
+				if (Z1.getR() + Z1.getI() > C1.getR() + C1.getI())
 				     return true;
 				return false;
 			}

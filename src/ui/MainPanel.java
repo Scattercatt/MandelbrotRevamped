@@ -120,6 +120,11 @@ public class MainPanel extends JPanel implements ActionListener {
 	JTextField l_iterationsPerSecond;
 	JTextField l_predictedRenderIterations;
 	
+	JTextField tf_cameraPos1X;
+	JTextField tf_cameraPos2X;
+	JTextField tf_cameraPos1Y;
+	JTextField tf_cameraPos2Y;
+	
 	ArrayList<JTextField> textFieldArrayList = new ArrayList<JTextField>();
 	
 	//DEBUG
@@ -296,25 +301,25 @@ public class MainPanel extends JPanel implements ActionListener {
 				p1[1] -= movementDistance;
 				p2[1] -= movementDistance;
 				renderFinderWindow();	
-				return;
+				break;
 			case DOWN:
 				movementDistance = (p2[1] - p1[1]) * MOVEMENT_PERCENTAGE;
 				p1[1] += movementDistance;
 				p2[1] += movementDistance;
 				renderFinderWindow();	
-				return;
+				break;
 			case LEFT:
 				movementDistance = (p2[0] - p1[0]) * MOVEMENT_PERCENTAGE;
 				p1[0] -= movementDistance;
 				p2[0] -= movementDistance;
 				renderFinderWindow();
-				return;
+				break;
 			case RIGHT:
 				movementDistance = (p2[0] - p1[0]) * MOVEMENT_PERCENTAGE;
 				p1[0] += movementDistance;
 				p2[0] += movementDistance;
 				renderFinderWindow();	
-				return;
+				break;
 			case ZIN:
 				zoomDistance = (p2[1] - p1[1]) * ZOOM_PERCENTAGE;
 				p1[0] += zoomDistance;
@@ -323,7 +328,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				p2[0] -= zoomDistance;
 				p2[1] -= zoomDistance;
 				renderFinderWindow();
-				return;
+				break;
 			case ZOUT:
 				zoomDistance = (p2[1] - p1[1]) * ZOOM_PERCENTAGE;
 				p1[0] -= zoomDistance;
@@ -332,7 +337,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				p2[0] += zoomDistance;
 				p2[1] += zoomDistance;
 				renderFinderWindow();
-				return;
+				break;
 			case IINC:
 				if (FractalCalculator.getMaxIterations() > 2000)
 					FractalCalculator.addToMaxIterations(100);
@@ -340,7 +345,7 @@ public class MainPanel extends JPanel implements ActionListener {
 					FractalCalculator.addToMaxIterations(10);
 				else
 					FractalCalculator.addToMaxIterations(1);
-				return;
+				break;
 			case IDEC:
 				if (FractalCalculator.getMaxIterations() > 2000)
 					FractalCalculator.addToMaxIterations(-100);
@@ -349,12 +354,15 @@ public class MainPanel extends JPanel implements ActionListener {
 				else if (FractalCalculator.getMaxIterations() > 0)
 					FractalCalculator.addToMaxIterations(-1);
 				renderFinderWindow();
-				return;
+				break;
 				
 			default:
 				
-				return;
+				break;
 			}
+			
+			
+			updateCameraPositionTextFields(FractalCalculator.getCameraP1(), FractalCalculator.getCameraP2());
 			
 		}
 		
@@ -886,10 +894,10 @@ public class MainPanel extends JPanel implements ActionListener {
 		final int PANEL_WIDTH = 310;
 		
 		//North panel of east
-		JPanel eastPanelNorth = new JPanel();
-		eastPanelNorth.setLayout(new GridBagLayout());
-		eastPanelNorth.setBorder(BorderFactory.createRaisedBevelBorder());
-		eastPanelNorth.setMaximumSize(new Dimension(PANEL_WIDTH, 100));
+		JPanel eastPanel1 = new JPanel();
+		eastPanel1.setLayout(new GridBagLayout());
+		eastPanel1.setBorder(BorderFactory.createRaisedBevelBorder());
+		eastPanel1.setMaximumSize(new Dimension(PANEL_WIDTH, 100));
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.insets = new Insets(0, 10, 0, 10);
@@ -897,7 +905,7 @@ public class MainPanel extends JPanel implements ActionListener {
 		//Fractal dropdown
 		JLabel jl_fractalList = new JLabel("Fractals:");
 		gbcSet(gbc, 0, 0);
-		eastPanelNorth.add(jl_fractalList, gbc);
+		eastPanel1.add(jl_fractalList, gbc);
 		
 		String[] fractalNames = FractalCalculator.getAllFractalNames();
 		JComboBox jcb_fractalList = new JComboBox(fractalNames);
@@ -910,13 +918,13 @@ public class MainPanel extends JPanel implements ActionListener {
 		}});
 		
 		gbcSet(gbc, 1, 0);
-		eastPanelNorth.add(jcb_fractalList, gbc);
+		eastPanel1.add(jcb_fractalList, gbc);
 		
 		
 		//Palette dropdown
 		JLabel jl_paletteList = new JLabel("Palettes:");
 		gbcSet(gbc, 0, 1);
-		eastPanelNorth.add(jl_paletteList, gbc);
+		eastPanel1.add(jl_paletteList, gbc);
 		
 		String[] paletteNames = FractalCalculator.getAllPaletteNames();
 		JComboBox jcb_paletteList = new JComboBox(paletteNames);
@@ -929,12 +937,12 @@ public class MainPanel extends JPanel implements ActionListener {
 		}});
 		
 		gbcSet(gbc, 1, 1);
-		eastPanelNorth.add(jcb_paletteList, gbc);
+		eastPanel1.add(jcb_paletteList, gbc);
 		
 		//Bailout dropdown
 		JLabel jl_bailoutList = new JLabel("Bailouts:");
 		gbcSet(gbc, 0, 2);
-		eastPanelNorth.add(jl_bailoutList, gbc);
+		eastPanel1.add(jl_bailoutList, gbc);
 		
 		String[] bailoutNames = FractalCalculator.getAllBailoutNames();
 		JComboBox jcb_bailoutList = new JComboBox(bailoutNames);
@@ -947,12 +955,12 @@ public class MainPanel extends JPanel implements ActionListener {
 		}});
 		
 		gbcSet(gbc, 1, 2);
-		eastPanelNorth.add(jcb_bailoutList, gbc);
+		eastPanel1.add(jcb_bailoutList, gbc);
 		
 		//ISC dropdown
 		JLabel jl_ISCList = new JLabel("ISCs:");
 		gbcSet(gbc, 0, 3);
-		eastPanelNorth.add(jl_ISCList, gbc);
+		eastPanel1.add(jl_ISCList, gbc);
 		
 		String[] ISCNames = FractalCalculator.getAllISCNames();
 		JComboBox jcb_ISCList = new JComboBox(ISCNames);
@@ -965,7 +973,7 @@ public class MainPanel extends JPanel implements ActionListener {
 		}});
 		
 		gbcSet(gbc, 1, 3);
-		eastPanelNorth.add(jcb_ISCList, gbc);
+		eastPanel1.add(jcb_ISCList, gbc);
 		
 	
 		JCheckBox cb_colorInsidePoints = new JCheckBox("Inside points");
@@ -977,7 +985,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			renderFinderWindow();
 		}});
 		gbcSet(gbc, 0, 4);
-		eastPanelNorth.add(cb_colorInsidePoints, gbc);
+		eastPanel1.add(cb_colorInsidePoints, gbc);
 		
 		JCheckBox cb_colorOutsidePoints = new JCheckBox("Outside points");
 		cb_colorOutsidePoints.setFocusable(false);
@@ -987,13 +995,13 @@ public class MainPanel extends JPanel implements ActionListener {
 			renderFinderWindow();
 		}});
 		gbcSet(gbc, 0, 5);
-		eastPanelNorth.add(cb_colorOutsidePoints, gbc);
+		eastPanel1.add(cb_colorOutsidePoints, gbc);
 		
 		//Center panel of east
-		JPanel eastPanelCenter = new JPanel();
-		eastPanelCenter.setLayout(new GridBagLayout());
-		eastPanelCenter.setMaximumSize(new Dimension(PANEL_WIDTH, 400));
-		eastPanelCenter.setBorder(BorderFactory.createRaisedBevelBorder());
+		JPanel eastPanel2 = new JPanel();
+		eastPanel2.setLayout(new GridBagLayout());
+		eastPanel2.setMaximumSize(new Dimension(PANEL_WIDTH, 400));
+		eastPanel2.setBorder(BorderFactory.createRaisedBevelBorder());
 		final int TEXT_FIELD_SIZE = 9;
 		final int FILLER_SIZE_X = 72;
 		
@@ -1002,7 +1010,7 @@ public class MainPanel extends JPanel implements ActionListener {
 		JLabel l_iterations = new JLabel("Iterations:");
 		
 		gbcSet(gbc, 0, 0);
-		eastPanelCenter.add(l_iterations, gbc);
+		eastPanel2.add(l_iterations, gbc);
 		
 		JTextField tf_iterations = new JTextField(TEXT_FIELD_SIZE);
 		textFieldArrayList.add(tf_iterations);
@@ -1024,17 +1032,17 @@ public class MainPanel extends JPanel implements ActionListener {
 		}});
 		
 		gbcSet(gbc, 1, 0);
-		eastPanelCenter.add(tf_iterations, gbc);
+		eastPanel2.add(tf_iterations, gbc);
 		
 		JPanelFiller rfiller1 = new JPanelFiller(FILLER_SIZE_X, 20);
 		gbcSet(gbc, 2, 0);
-		eastPanelCenter.add(rfiller1, gbc);
+		eastPanel2.add(rfiller1, gbc);
 		
 		///////// Iterations Till Loop text field
 		JLabel l_iterationsTillLoop = new JLabel("ITL:");
 		
 		gbcSet(gbc, 0, 1);
-		eastPanelCenter.add(l_iterationsTillLoop, gbc);
+		eastPanel2.add(l_iterationsTillLoop, gbc);
 		
 		JTextField tf_iterationsTillLoop = new JTextField(TEXT_FIELD_SIZE);
 		textFieldArrayList.add(tf_iterationsTillLoop);
@@ -1057,17 +1065,17 @@ public class MainPanel extends JPanel implements ActionListener {
 		}});
 		
 		gbcSet(gbc, 1, 1);
-		eastPanelCenter.add(tf_iterationsTillLoop, gbc);
+		eastPanel2.add(tf_iterationsTillLoop, gbc);
 		
 		JPanelFiller rfiller2 = new JPanelFiller(FILLER_SIZE_X, 20);
 		gbcSet(gbc, 2, 1);
-		eastPanelCenter.add(rfiller2, gbc);
+		eastPanel2.add(rfiller2, gbc);
 		
 		//////////// Offset text field
 		JLabel l_offset = new JLabel("Color Offset:");
 		
 		gbcSet(gbc, 0, 2);
-		eastPanelCenter.add(l_offset, gbc);
+		eastPanel2.add(l_offset, gbc);
 		
 		JTextField tf_offset = new JTextField(TEXT_FIELD_SIZE);
 		textFieldArrayList.add(tf_offset);
@@ -1090,17 +1098,17 @@ public class MainPanel extends JPanel implements ActionListener {
 		}});
 		
 		gbcSet(gbc, 1, 2);
-		eastPanelCenter.add(tf_offset, gbc);
+		eastPanel2.add(tf_offset, gbc);
 		
 		JPanelFiller rfiller3 = new JPanelFiller(FILLER_SIZE_X, 20);
 		gbcSet(gbc, 2, 2);
-		eastPanelCenter.add(rfiller3, gbc);
+		eastPanel2.add(rfiller3, gbc);
 		
 		
-		JPanel eastPanelSouth = new JPanel();
-		eastPanelSouth.setLayout(new GridBagLayout());
-		eastPanelSouth.setBorder(BorderFactory.createRaisedBevelBorder());
-		eastPanelSouth.setMaximumSize(new Dimension(PANEL_WIDTH, 100));
+		JPanel eastPanel3 = new JPanel();
+		eastPanel3.setLayout(new GridBagLayout());
+		eastPanel3.setBorder(BorderFactory.createRaisedBevelBorder());
+		eastPanel3.setMaximumSize(new Dimension(PANEL_WIDTH, 100));
 		
 		JLabel l_iterationTrackerLabel = new JLabel("IC:");
 		l_iterationTracker = new JTextField(7);
@@ -1125,42 +1133,167 @@ public class MainPanel extends JPanel implements ActionListener {
 		
 		
 		gbcSet(gbc, 0, 0);
-		eastPanelSouth.add(l_iterationTrackerLabel, gbc);
+		eastPanel3.add(l_iterationTrackerLabel, gbc);
 		gbcSet(gbc, 1, 0);
-		eastPanelSouth.add(l_iterationTracker, gbc);
+		eastPanel3.add(l_iterationTracker, gbc);
 		gbcSet(gbc, 0, 1);
-		eastPanelSouth.add(l_predictedRenderIterationsLabel, gbc);
+		eastPanel3.add(l_predictedRenderIterationsLabel, gbc);
 		gbcSet(gbc, 1, 1);
-		eastPanelSouth.add(l_predictedRenderIterations, gbc);
+		eastPanel3.add(l_predictedRenderIterations, gbc);
 		gbcSet(gbc, 2, 0);
-		eastPanelSouth.add(l_averageTimePerIterationLabel, gbc);
+		eastPanel3.add(l_averageTimePerIterationLabel, gbc);
 		gbcSet(gbc, 3, 0);
-		eastPanelSouth.add(l_averageTimePerIteration, gbc);
+		eastPanel3.add(l_averageTimePerIteration, gbc);
 		gbcSet(gbc, 2, 1);
-		eastPanelSouth.add(l_iterationsPerSecondLabel, gbc);
+		eastPanel3.add(l_iterationsPerSecondLabel, gbc);
 		gbcSet(gbc, 3, 1);
-		eastPanelSouth.add(l_iterationsPerSecond, gbc);
+		eastPanel3.add(l_iterationsPerSecond, gbc);
 		gbcSet(gbc, 0, 2);
-		eastPanelSouth.add(l_estimatedRenderTimeLabel, gbc);
+		eastPanel3.add(l_estimatedRenderTimeLabel, gbc);
 		gbcSet(gbc, 1, 2);
-		eastPanelSouth.add(l_estimatedRenderTime, gbc);
+		eastPanel3.add(l_estimatedRenderTime, gbc);
+		
+		JPanel eastPanel4 = new JPanel();
+		eastPanel4.setLayout(new GridBagLayout());
+		eastPanel4.setMaximumSize(new Dimension(PANEL_WIDTH, 400));
+		eastPanel4.setBorder(BorderFactory.createRaisedBevelBorder());
+		
+		final int CAMERA_POS_TEXTFIELD_SIZE = 19;
+		tf_cameraPos1X = new JTextField(CAMERA_POS_TEXTFIELD_SIZE);		
+		tf_cameraPos1Y = new JTextField(CAMERA_POS_TEXTFIELD_SIZE);
+		tf_cameraPos2X = new JTextField(CAMERA_POS_TEXTFIELD_SIZE);
+		tf_cameraPos2Y = new JTextField(CAMERA_POS_TEXTFIELD_SIZE);
+		
+		//Adding action listeners to camera position text boxes. When a number is entered, it makes sure its a valid number before setting it to the camera position.
+		tf_cameraPos1X.addActionListener(new TextActionListener(this) {@Override public void actionPerformed(ActionEvent e) {
+			
+			try {
+				double t = Double.parseDouble(tf_cameraPos1X.getText());
+				FractalCalculator.setCameraP1(new double[] {t ,FractalCalculator.getCameraP1()[1]});
+				
+			} catch (Exception ex)
+			{
+				callErrorFrame("Input must be a double percision float!");
+				tf_offset.setText(String.valueOf(FractalCalculator.getColorOffset()));
+			}
+			
+			mp.renderFinderWindow();
+			mp.requestFocusInWindow();
+		}});
+		
+		tf_cameraPos1Y.addActionListener(new TextActionListener(this) {@Override public void actionPerformed(ActionEvent e) {
+					
+					try {
+						double t = Double.parseDouble(tf_cameraPos1Y.getText());
+						FractalCalculator.setCameraP1(new double[] {FractalCalculator.getCameraP1()[0], t});
+						
+					} catch (Exception ex)
+					{
+						callErrorFrame("Input must be a double percision float!");
+						tf_offset.setText(String.valueOf(FractalCalculator.getColorOffset()));
+					}
+					
+					mp.renderFinderWindow();
+					mp.requestFocusInWindow();
+				}});
+		
+		tf_cameraPos2X.addActionListener(new TextActionListener(this) {@Override public void actionPerformed(ActionEvent e) {
+			
+			try {
+				double t = Double.parseDouble(tf_cameraPos2X.getText());
+				FractalCalculator.setCameraP2(new double[] {t ,FractalCalculator.getCameraP2()[1]});
+				
+			} catch (Exception ex)
+			{
+				callErrorFrame("Input must be a double percision float!");
+				tf_offset.setText(String.valueOf(FractalCalculator.getColorOffset()));
+			}
+			
+			mp.renderFinderWindow();
+			mp.requestFocusInWindow();
+		}});
+		
+		tf_cameraPos2Y.addActionListener(new TextActionListener(this) {@Override public void actionPerformed(ActionEvent e) {
+					
+					try {
+						double t = Double.parseDouble(tf_cameraPos2Y.getText());
+						FractalCalculator.setCameraP2(new double[] {FractalCalculator.getCameraP2()[0], t});
+						
+					} catch (Exception ex)
+					{
+						callErrorFrame("Input must be a double percision float!");
+						tf_offset.setText(String.valueOf(FractalCalculator.getColorOffset()));
+					}
+					
+					mp.renderFinderWindow();
+					mp.requestFocusInWindow();
+				}});
+		
+		
+		tf_cameraPos1X.setText(String.valueOf(FractalCalculator.getCameraP1()[0]));
+		tf_cameraPos1Y.setText(String.valueOf(FractalCalculator.getCameraP1()[1]));
+		tf_cameraPos2X.setText(String.valueOf(FractalCalculator.getCameraP2()[0]));
+		tf_cameraPos2Y.setText(String.valueOf(FractalCalculator.getCameraP2()[1]));
+		
+		final Font LARGE_BOLD_LABEL = new Font("Serif", Font.BOLD, 18);
+		
+		JLabel l_cameraPos1 = new JLabel("Pos 1:");
+		l_cameraPos1.setFont(LARGE_BOLD_LABEL);
+		
+		JLabel l_cameraPos2 = new JLabel("Pos 2:");
+		l_cameraPos2.setFont(LARGE_BOLD_LABEL);
+		
+		JLabel l_cameraPos1X = new JLabel("X");
+		JLabel l_cameraPos1Y = new JLabel("Y");
+		JLabel l_cameraPos2X = new JLabel("X");
+		JLabel l_cameraPos2Y = new JLabel("Y");
+		
+		gbcSet(gbc, 0, 0);
+		eastPanel4.add(l_cameraPos1, gbc);
+		gbcSet(gbc, 0, 1);
+		eastPanel4.add(l_cameraPos1X, gbc);
+		gbcSet(gbc, 0, 2);
+		eastPanel4.add(l_cameraPos1Y, gbc);
+		gbcSet(gbc, 1, 1);
+		eastPanel4.add(tf_cameraPos1X, gbc);
+		gbcSet(gbc, 1, 2);
+		eastPanel4.add(tf_cameraPos1Y, gbc);
+		
+		gbcSet(gbc, 0, 3);
+		eastPanel4.add(l_cameraPos2, gbc);
+		gbcSet(gbc, 0, 4);
+		eastPanel4.add(l_cameraPos2X, gbc);
+		gbcSet(gbc, 0, 5);
+		eastPanel4.add(l_cameraPos2Y, gbc);
+		gbcSet(gbc, 1, 4);
+		eastPanel4.add(tf_cameraPos2X, gbc);
+		gbcSet(gbc, 1, 5);
+		eastPanel4.add(tf_cameraPos2Y, gbc);
+		
+		
+		
+		
 
 		JPanelFiller bfiller = new JPanelFiller(10, 610);
 		JPanelFiller tfiller = new JPanelFiller(10, 5);
 		JPanelFiller mfiller1 = new JPanelFiller(10, 10);
 		JPanelFiller mfiller2 = new JPanelFiller(10, 10);
+		JPanelFiller mfiller3 = new JPanelFiller(10, 10);
 		
 		
 		
 		JPanel eastPanel = new JPanel();
 		eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
 		eastPanel.add(tfiller);
-		eastPanel.add(eastPanelNorth);
+		eastPanel.add(eastPanel1);
 		eastPanel.add(mfiller1);
-		eastPanel.add(eastPanelCenter);
+		eastPanel.add(eastPanel2);
 		eastPanel.add(mfiller2);
-		eastPanel.add(eastPanelSouth);
+		eastPanel.add(eastPanel3);
+		eastPanel.add(mfiller3);
+		eastPanel.add(eastPanel4);
 		eastPanel.add(bfiller);
+		
 
 		return eastPanel;
 
@@ -1181,6 +1314,13 @@ public class MainPanel extends JPanel implements ActionListener {
 			double ert = pri / ips;
 			l_estimatedRenderTime.setText(String.format("%s", MiscTools.millisToStringTime((long)(ert * 1000))));
 		}
+	}
+	public void updateCameraPositionTextFields(double[] cameraP1, double[] cameraP2)
+	{
+		tf_cameraPos1X.setText(String.valueOf(cameraP1[0]));
+		tf_cameraPos1Y.setText(String.valueOf(cameraP1[1]));
+		tf_cameraPos2X.setText(String.valueOf(cameraP2[0]));
+		tf_cameraPos2Y.setText(String.valueOf(cameraP2[1]));
 	}
 	
 	private JButton create_btn_renderPreview_Button() {
@@ -1256,4 +1396,5 @@ public class MainPanel extends JPanel implements ActionListener {
 	{
 		return FractalCalculator.getJuliaCameraP2();
 	}
+	
 }
