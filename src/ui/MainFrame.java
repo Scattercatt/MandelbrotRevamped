@@ -29,6 +29,8 @@ public class MainFrame extends JFrame {
 
 	private DataHandler dh;
 	
+	private static String VERSION_NUMBER = "0.3.0-beta";
+	
 	String rop;
 
 	public MainFrame()
@@ -47,7 +49,7 @@ public class MainFrame extends JFrame {
 		}
 		
 		
-		JFrame f = new JFrame("Mandelbrot Revamped 0.2.1-beta");
+		JFrame f = new JFrame("Mandelbrot Revamped " + VERSION_NUMBER);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainPanel = new MainPanel(rop);
 		
@@ -86,6 +88,13 @@ public class MainFrame extends JFrame {
 			mainPanel.setPreviewPaletteShifts(!mainPanel.getPreviewPaletteShifts());
 		}});
 		viewMenu.add(previewPaletteShifts);
+		
+		JCheckBoxMenuItem previewBailouts = new JCheckBoxMenuItem("Preview bailouts");
+		previewBailouts.setSelected(false);
+		previewBailouts.addActionListener(new ActionListener(){@Override public void actionPerformed(ActionEvent e) {
+			mainPanel.setPreviewBailouts(!mainPanel.getPreviewBailouts());
+		}});
+		viewMenu.add(previewBailouts);
 		
 		
 		return viewMenu;

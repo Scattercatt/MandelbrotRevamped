@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 
 import javax.swing.*;
 
+import calc.Bailout;
 import calc.Complex;
 import calc.FractalCalculator;
 import calc.MiscTools;
@@ -53,9 +54,16 @@ public class MainPanel extends JPanel implements ActionListener {
 	final int[] JULIA_RENDER_WINDOW_POSITION = new int[] {60, LARGE_RENDER_WINDOW_SIZE+20};
 	Color[][] juliaRenderWindow = new Color[JULIA_RENDER_WINDOW_SIZE][JULIA_RENDER_WINDOW_SIZE];
 	
+	//Main preview Windows
 	final int PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE = 50;
 	final int[] PREVIEW_PALETTE_SHIFT_WINDOWS_POSITION = new int[] {480, 360};
 	ArrayList<Color[][]> previewPaletteShiftWindows = new ArrayList<Color[][]>();
+	
+	final int PREVIEW_BAILOUTS_WINDOWS_SIZE = 50;
+	final int[] PREVIEW_BAILOUTS_WINDOWS_POSITION = new int[] {480, 290};
+	ArrayList<Color[][]> previewBailoutsWindows = new ArrayList<Color[][]>();
+	
+	//Julia Preview Windows
 	
 	private static boolean controlJuliaWindow = false;
 	
@@ -72,6 +80,7 @@ public class MainPanel extends JPanel implements ActionListener {
 	private Complex juliaPoint = new Complex(0, 0);
 	
 	private static boolean previewPaletteShifts = false;
+	private static boolean previewBailouts = false;
 	
 	JButton btn_incPalette;
 	JButton btn_decPalette;
@@ -142,6 +151,10 @@ public class MainPanel extends JPanel implements ActionListener {
 		for (int i = 0; i < 5; i++)
 			previewPaletteShiftWindows.add(new Color[PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE][PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE]);
 		
+		//Initializing bailout preview windows
+		for (int i = 0; i < FractalCalculator.getBailoutArray().size(); i++)
+			previewBailoutsWindows.add(new Color[PREVIEW_BAILOUTS_WINDOWS_SIZE][PREVIEW_BAILOUTS_WINDOWS_SIZE]);
+		
 		
 		String x = System.getProperty("os.name");
 		System.out.println(x);
@@ -207,6 +220,13 @@ public class MainPanel extends JPanel implements ActionListener {
 				{
 					previewPaletteShiftWindows.get(j)[ix][iy] = Color.GRAY;
 				}	
+		for (int j = 0; j < previewBailoutsWindows.size(); j++)
+			for (int ix = 0; ix < PREVIEW_BAILOUTS_WINDOWS_SIZE; ix++)
+				for (int iy = 0; iy < PREVIEW_BAILOUTS_WINDOWS_SIZE; iy++)
+				{
+					previewBailoutsWindows.get(j)[ix][iy] = Color.GRAY;
+				}	
+		
 		
 		this.addMouseListener(new MouseAdapterModified(this) {
 			@Override 
@@ -415,59 +435,33 @@ public class MainPanel extends JPanel implements ActionListener {
 					}
 			}
 		
+		if (previewBailouts)
+		{
+			ArrayList<Bailout> alb = FractalCalculator.getBailoutArray();
+			final int ROW_SIZE = 10;
+			
+			for (int j = 0; j < alb.size(); j++)
+			{
+				int positionX = PREVIEW_BAILOUTS_WINDOWS_POSITION[0] + (j % ROW_SIZE) * (PREVIEW_BAILOUTS_WINDOWS_SIZE + 10);
+				int positionY = PREVIEW_BAILOUTS_WINDOWS_POSITION[1] + j / ROW_SIZE * (PREVIEW_BAILOUTS_WINDOWS_SIZE + 10);
+				g2D.setColor(Color.WHITE);
+				g2D.drawString(alb.get(j).getName(), positionX, positionY-1);
+				
+				for (int ix = 0; ix < PREVIEW_BAILOUTS_WINDOWS_SIZE; ix++) 
+					for (int iy = 0; iy < PREVIEW_BAILOUTS_WINDOWS_SIZE; iy++)
+					{
+						g2D.setColor(previewBailoutsWindows.get(j)[ix][iy]);
+						g2D.drawLine(ix+positionX, iy+positionY, ix+positionX, iy+positionY);
+					}
+			}
+			
+		}
+		
 		/////////////////////////////////////////////////
 		//CALC TEXT/////////////////////////////////////
 		
 		double[] p1 = getP1();
 		double[] p2 = getP2();
-		
-		
-		g2D.setColor(Color.WHITE);
-		
-		g2D.drawLine(POSITION_CALCTEXT[0], POSITION_CALCTEXT[1]-16, POSITION_CALCTEXT[0], POSITION_CALCTEXT[1]+100);
-		
-		g2D.drawString("Calc Info", POSITION_CALCTEXT[0], POSITION_CALCTEXT[1]-20);
-		g2D.drawString("==================", POSITION_CALCTEXT[0], POSITION_CALCTEXT[1]-10);
-		
-		g2D.drawString("Fractal:", POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]);
-		g2D.drawString(String.format("%s",FractalCalculator.getCurrentFractalName()), POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+10);
-		g2D.setColor(Color.WHITE);
-		
-		g2D.drawString("Zoom:", POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+30);
-		g2D.drawString(String.format("%6.1e",p2[0] - p1[0]), POSITION_CALCTEXT[0]+80, POSITION_CALCTEXT[1]+30);
-		
-		g2D.drawString("Iterations:", POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+50);
-		g2D.drawString(String.format("%d",FractalCalculator.getMaxIterations()), POSITION_CALCTEXT[0]+80, POSITION_CALCTEXT[1]+50);
-		
-		g2D.drawString("Bailout:", POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+70);
-		g2D.setColor(Color.GREEN);
-		g2D.drawString(String.format("%s",FractalCalculator.getSelectedBailout().getName()), POSITION_CALCTEXT[0]+2, POSITION_CALCTEXT[1]+80);
-		g2D.setColor(Color.WHITE);
-		
-		g2D.drawLine(POSITION_CALCTEXT[0]+125, POSITION_CALCTEXT[1]-16, POSITION_CALCTEXT[0]+125, POSITION_CALCTEXT[1]+100);
-		/////////////////////////////////////////////////
-		//COLOR TEXT/////////////////////////////////////
-		
-		g2D.setColor(Color.YELLOW);
-		g2D.drawLine(POSITION_COLORTEXT[0], POSITION_COLORTEXT[1]-16, POSITION_COLORTEXT[0], POSITION_COLORTEXT[1]+100);
-		
-		g2D.drawString("Color Info", POSITION_COLORTEXT[0], POSITION_COLORTEXT[1]-20);
-		g2D.drawString("==================", POSITION_COLORTEXT[0], POSITION_COLORTEXT[1]-10);
-		
-		g2D.drawString("Palette:", POSITION_COLORTEXT[0]+2, POSITION_COLORTEXT[1]);
-		g2D.drawString(String.format("%s", FractalCalculator.getSelectedPalette().getName()), POSITION_COLORTEXT[0]+80, POSITION_COLORTEXT[1]);
-		
-		
-		g2D.drawString("Color divs:", POSITION_COLORTEXT[0]+2, POSITION_COLORTEXT[1]+30);
-		g2D.drawString(String.format("%d",FractalCalculator.getModulusColorDivision()), POSITION_COLORTEXT[0]+80, POSITION_COLORTEXT[1]+30);
-		
-		g2D.drawString("Color offset:", POSITION_COLORTEXT[0]+2, POSITION_COLORTEXT[1]+60);
-		g2D.drawString(String.format("%d",FractalCalculator.getColorOffset()), POSITION_COLORTEXT[0]+80, POSITION_COLORTEXT[1]+60);
-		
-		g2D.setColor(Color.RED);
-		//g2D.drawString("WARNING: This program is made to use 100% of your CPU. Responsibility for heat damage lies on the user, so do not use if you have poor CPU cooling!", 5, this.getHeight()-30);
-		g2D.setColor(Color.WHITE);
-		
 		
 		
 	}
@@ -489,11 +483,11 @@ public class MainPanel extends JPanel implements ActionListener {
 
 		if (controlJuliaWindow)
 			IntStream.range(0, PREVIEW_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
-				FractalCalculator.calcFractalColumn(previewRenderWindow, i, true, juliaPoint.getR(), juliaPoint.getI(), -1);
+				FractalCalculator.calcFractalColumn(previewRenderWindow, i, true, juliaPoint.getR(), juliaPoint.getI(), -1, FractalCalculator.getSelectedBailout());
 			});
 		else
 			IntStream.range(0, PREVIEW_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
-				FractalCalculator.calcFractalColumn(previewRenderWindow, i, false, 0, 0, -1);
+				FractalCalculator.calcFractalColumn(previewRenderWindow, i, false, 0, 0, -1, FractalCalculator.getSelectedBailout());
 			});
 	
 	}
@@ -503,7 +497,7 @@ public class MainPanel extends JPanel implements ActionListener {
 		FractalCalculator.startTimeTracker();
 		
 		IntStream.range(0, LARGE_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
-			FractalCalculator.calcFractalColumn(largeRenderWindow, i, false, 0, 0, -1);
+			FractalCalculator.calcFractalColumn(largeRenderWindow, i, false, 0, 0, -1, FractalCalculator.getSelectedBailout());
 		});
 
 		
@@ -513,7 +507,17 @@ public class MainPanel extends JPanel implements ActionListener {
 			{
 				int h = j;
 				IntStream.range(0, PREVIEW_PALETTE_SHIFT_WINDOWS_SIZE).parallel().forEach(i -> { 
-					FractalCalculator.calcFractalColumn(previewPaletteShiftWindows.get(h), i, false, 0, 0, h);
+					FractalCalculator.calcFractalColumn(previewPaletteShiftWindows.get(h), i, false, 0, 0, h, FractalCalculator.getSelectedBailout());
+				});
+			}
+		}
+		if (previewBailouts)
+		{
+			for (int j = 0; j < FractalCalculator.getBailoutArray().size(); j++)
+			{
+				int h = j;
+				IntStream.range(0, PREVIEW_BAILOUTS_WINDOWS_SIZE).parallel().forEach(i -> { 
+					FractalCalculator.calcFractalColumn(previewBailoutsWindows.get(h), i, false, 0, 0, -1, FractalCalculator.getBailoutArray().get(h));
 				});
 			}
 		}
@@ -526,7 +530,7 @@ public class MainPanel extends JPanel implements ActionListener {
 		FractalCalculator.startTimeTracker();
 		
 		IntStream.range(0, JULIA_RENDER_WINDOW_SIZE).parallel().forEach(i -> { 
-			FractalCalculator.calcFractalColumn(juliaRenderWindow, i, true, juliaPoint.getR(), juliaPoint.getI(), -1);
+			FractalCalculator.calcFractalColumn(juliaRenderWindow, i, true, juliaPoint.getR(), juliaPoint.getI(), -1, FractalCalculator.getSelectedBailout());
 		});
 		
 		FractalCalculator.endTimeTracker();
@@ -554,7 +558,7 @@ public class MainPanel extends JPanel implements ActionListener {
 		{
 			
 			IntStream.range(0, renderImageSize).parallel().forEach(i -> { 
-				FractalCalculator.calcFractalColumn(buff, i, julia, juliaPoint.getR(), juliaPoint.getI(), -1);
+				FractalCalculator.calcFractalColumn(buff, i, julia, juliaPoint.getR(), juliaPoint.getI(), -1, FractalCalculator.getSelectedBailout());
 			});
 			RenderProgressJPanel.endStopwatch();
 		    
@@ -1366,6 +1370,14 @@ public class MainPanel extends JPanel implements ActionListener {
 	public boolean getPreviewPaletteShifts()
 	{
 		return previewPaletteShifts;
+	}
+	public void setPreviewBailouts(boolean x)
+	{
+		previewBailouts = x;
+	}
+	public boolean getPreviewBailouts()
+	{
+		return previewBailouts;
 	}
 	public void setRenderOutputPath(String x)
 	{

@@ -105,10 +105,4 @@ public class InSetCalculator {
 		}
 		return longestPos;
 	}
-
-	
-	/**
-	 * Initializes all of the pre-written ISCs. To create more, go here!
-	 */
-	
 }

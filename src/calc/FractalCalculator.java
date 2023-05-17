@@ -108,7 +108,7 @@ public class FractalCalculator {
 	 * The main function driving fractal rendering. 
 	 * This is called "calcFractalColumn" because this program renders each of it's images one column at a time. Each column is offloaded to different threads. All this function can do is render one sliver of pixels in an entire image "id".
 	 */
-	public static synchronized void calcFractalColumn(Color[][] id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode)
+	public static synchronized void calcFractalColumn(Color[][] id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode, Bailout bailout)
 	{	
 		if (param_paletteShiftMode == -1)
 			param_paletteShiftMode = paletteShiftMode;
@@ -187,7 +187,7 @@ public class FractalCalculator {
 						if (colorInsidePixels)
 							points.add(c);
 			
-						while (!selectedBailout.escaped(z, c) && iterations < maxIterations) 
+						while (!bailout.escaped(z, c) && iterations < maxIterations) 
 						{
 							
 							//z = ZIterative(z, c);
@@ -247,7 +247,7 @@ public class FractalCalculator {
 				if (colorInsidePixels)
 					points.add(c);
 				
-				while (!selectedBailout.escaped(z, c) && iterations < maxIterations) 
+				while (!bailout.escaped(z, c) && iterations < maxIterations) 
 				{
 					//z = ZIterative(z, c);
 					z = selectedFractal.ZIterative(z, c);
@@ -286,7 +286,7 @@ public class FractalCalculator {
 	}
 	
 	//This function is the same as the one above, but uses a BufferedImage instead of Color[][]. See previous function for comments. 
-	public static synchronized void calcFractalColumn(BufferedImage id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode)
+	public static synchronized void calcFractalColumn(BufferedImage id, Integer column, boolean julia, double jpx, double jpy, int param_paletteShiftMode, Bailout bailout)
 	{	
 		if (param_paletteShiftMode == -1)
 			param_paletteShiftMode = paletteShiftMode;
@@ -353,7 +353,7 @@ public class FractalCalculator {
 						if (colorInsidePixels)
 							points.add(c);
 			
-						while (!selectedBailout.escaped(z, c) && iterations < maxIterations) // x*x + y*y < 4
+						while (!bailout.escaped(z, c) && iterations < maxIterations) // x*x + y*y < 4
 						{
 							
 							//z = ZIterative(z, c);
@@ -417,7 +417,7 @@ public class FractalCalculator {
 				if (colorInsidePixels)
 					points.add(c);
 				
-				while (!selectedBailout.escaped(z, c) && iterations < maxIterations) 
+				while (!bailout.escaped(z, c) && iterations < maxIterations) 
 				{
 					
 					//z = ZIterative(z, c);
@@ -525,6 +525,17 @@ public class FractalCalculator {
 		
 		//Default fractal is Mandelbrot Set
 		selectedFractal = fractals.get(0);
+		
+		fractals.add(new Fractal("Mandelbrot Set (sub2)") {
+			@Override
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Z = Z.add(C);
+				Z = Z.add(Z.log());
+				Z = Z.mult(C);
+				return Z;
+			}
+		});
 		
 		
 		fractals.add(new Fractal("Burning Ship") {
@@ -647,6 +658,19 @@ public class FractalCalculator {
 			}
 			
 		});
+		fractals.add(new Fractal("Buffalo") {
+			public Complex ZIterative(Complex Z, Complex C)
+			{
+				Complex T = new Complex(Math.abs(Z.getR()), Math.abs(Z.getI()));
+				Z = T.exp().sub(Z).add(C);
+				
+			    return Z;
+			}
+			
+		});
+		
+		
+		
 		
 	}
 	public static void initializeBailouts()
@@ -722,6 +746,15 @@ public class FractalCalculator {
 				return false;
 			}
 		});
+		bailouts.add(new Bailout("EXTBasic") {
+			@Override
+			public boolean escaped(Complex Z, Complex C)
+			{
+				if (Z.div(C).mod() > 4)
+					return true;
+				return false;
+			}
+		});
 	}
 	public static void initializeISCs()
 	{
@@ -774,19 +807,20 @@ public class FractalCalculator {
 				return c.size();
 			}
 		});
-		ISCs.add(new InSetCalculator("Test")
+		ISCs.add(new InSetCalculator("First Last Distance (100ItLim)")		
 		{
 			@Override
 			public int calculateVariable(ArrayList<Complex> c)
 			{
-				return (int) Math.round(distance(c, 0, c.size()-1) * (1000.0*c.size()));
+				if (c.size() < 100)
+					return (int) Math.round(distance(c, 0, c.size()-1) / c.size() * 100000.0);
+				return (int) Math.round(distance(c, 0, 99) / c.size() * 100000.0);
 			}
 			@Override
 			public int calculateMax(ArrayList<Complex> c)
 			{
-				return 1000*c.size();
+				return 100 * c.size();
 			}
-		
 		});
 	}
 	
